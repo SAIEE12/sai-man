@@ -28,10 +28,12 @@ export default class PlayScene extends Phaser.Scene {
   private playerDirection = { x: 0, y: 0 };
   private tileSize = 32;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasdKeys?: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
   private portfolioZones: Phaser.GameObjects.Rectangle[] = [];
   private currentZone: string | null = null;
   private mouthAngle = 0;
   private mouthDirection = 1;
+  private lastZoneTriggered: string | null = null;
 
   constructor() {
     super({ key: 'PlayScene' });
@@ -82,12 +84,24 @@ export default class PlayScene extends Phaser.Scene {
     });
     this.controlsText.setOrigin(1, 0);
 
-    // Input
+    // Input - Arrow keys and WASD
     this.cursors = this.input.keyboard?.createCursorKeys();
+    this.wasdKeys = {
+      W: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      A: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      S: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      D: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+    };
     
     this.input.keyboard?.on('keydown-P', () => {
       this.togglePause();
     });
+
+    // Listen for resume game event from React
+    window.addEventListener('resumeGame', this.handleResumeGame.bind(this));
+
+    // Listen for mobile controls
+    window.addEventListener('mobileControl', this.handleMobileControl.bind(this) as EventListener);
 
     // Animate Pac-Man mouth
     this.time.addEvent({
@@ -189,35 +203,59 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   private createPortfolioZones() {
-    // About zone (top-left)
-    const aboutZone = this.add.rectangle(
+    // Basic details zone (top-left, green)
+    const basicDetailsZone = this.add.rectangle(
+      this.tileSize * 5,
+      this.tileSize * 3.5,
+      this.tileSize * 4,
       this.tileSize * 3,
-      this.tileSize * 2,
-      this.tileSize * 2,
-      this.tileSize * 2,
       0x00FF00,
       0.2
     );
-    (aboutZone as any).zoneType = 'about';
-    this.portfolioZones.push(aboutZone);
+    (basicDetailsZone as any).zoneType = 'basic-details';
+    this.portfolioZones.push(basicDetailsZone);
 
-    // Projects zone (top-right)
+    // Projects zone (top-right, magenta)
     const projectsZone = this.add.rectangle(
-      this.tileSize * 16,
-      this.tileSize * 2,
-      this.tileSize * 2,
-      this.tileSize * 2,
+      this.tileSize * 17,
+      this.tileSize * 3.5,
+      this.tileSize * 3,
+      this.tileSize * 3,
       0xFF00FF,
       0.2
     );
     (projectsZone as any).zoneType = 'projects';
     this.portfolioZones.push(projectsZone);
 
-    // Contact zone (bottom-center)
+    // Experience zone (center-left, blue)
+    const experienceZone = this.add.rectangle(
+      this.tileSize * 6.5,
+      this.tileSize * 9.5,
+      this.tileSize * 5,
+      this.tileSize * 3,
+      0x0000FF,
+      0.2
+    );
+    (experienceZone as any).zoneType = 'experience';
+    this.portfolioZones.push(experienceZone);
+
+    // Skills zone (center-right, yellow)
+    const skillsZone = this.add.rectangle(
+      this.tileSize * 17,
+      this.tileSize * 9.5,
+      this.tileSize * 4,
+      this.tileSize * 3,
+      0xFFFF00,
+      0.2
+    );
+    (skillsZone as any).zoneType = 'skills';
+    this.portfolioZones.push(skillsZone);
+
+    // Contact zone (bottom-center, cyan)
     const contactZone = this.add.rectangle(
-      this.tileSize * 10,
-      this.tileSize * 10,
-      this.tileSize * 2,
+      this.tileSize * 12,
+      this.tileSize * 11,
+      this.tileSize * 6,
       this.tileSize * 2,
       0x00FFFF,
       0.2
@@ -276,25 +314,54 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
+  private handleResumeGame() {
+    if (this.isPaused && this.currentZone !== 'contact') {
+      this.isPaused = false;
+      if (this.pauseText) {
+        this.pauseText.setVisible(false);
+      }
+    }
+  }
+
+  private handleMobileControl(event: CustomEvent) {
+    if (this.gameOver || this.isPaused || !this.player) return;
+    
+    const { direction } = event.detail;
+    switch (direction) {
+      case 'up':
+        this.playerDirection = { x: 0, y: -1 };
+        break;
+      case 'down':
+        this.playerDirection = { x: 0, y: 1 };
+        break;
+      case 'left':
+        this.playerDirection = { x: -1, y: 0 };
+        break;
+      case 'right':
+        this.playerDirection = { x: 1, y: 0 };
+        break;
+    }
+  }
+
   update() {
     if (this.gameOver || this.isPaused || !this.player || !this.cursors) return;
 
-    // Player movement
+    // Player movement - Arrow keys or WASD
     let velocityX = 0;
     let velocityY = 0;
 
-    if (this.cursors.left?.isDown) {
+    if (this.cursors.left?.isDown || this.wasdKeys?.A.isDown) {
       velocityX = -this.playerSpeed;
       this.playerDirection = { x: -1, y: 0 };
-    } else if (this.cursors.right?.isDown) {
+    } else if (this.cursors.right?.isDown || this.wasdKeys?.D.isDown) {
       velocityX = this.playerSpeed;
       this.playerDirection = { x: 1, y: 0 };
     }
 
-    if (this.cursors.up?.isDown) {
+    if (this.cursors.up?.isDown || this.wasdKeys?.W.isDown) {
       velocityY = -this.playerSpeed;
       this.playerDirection = { x: 0, y: -1 };
-    } else if (this.cursors.down?.isDown) {
+    } else if (this.cursors.down?.isDown || this.wasdKeys?.S.isDown) {
       velocityY = this.playerSpeed;
       this.playerDirection = { x: 0, y: 1 };
     }
@@ -396,7 +463,7 @@ export default class PlayScene extends Phaser.Scene {
       }
     });
 
-    // Check portfolio zones
+    // Check portfolio zones - pause game when entering zones
     this.portfolioZones.forEach(zone => {
       const distance = Phaser.Math.Distance.Between(
         this.player!.x,
@@ -405,12 +472,22 @@ export default class PlayScene extends Phaser.Scene {
         zone.y
       );
       
-      if (distance < 40) {
+      if (distance < 50) {
         const zoneType = (zone as any).zoneType;
-        if (this.currentZone !== zoneType) {
+        if (this.lastZoneTriggered !== zoneType) {
+          this.lastZoneTriggered = zoneType;
           this.currentZone = zoneType;
+          
+          // Pause game for all zones except contact (contact has special resume behavior)
+          if (zoneType !== 'contact') {
+            this.isPaused = true;
+          }
+          
           this.triggerPortfolioZone(zoneType);
         }
+      } else if (this.lastZoneTriggered) {
+        // Reset when leaving zone area
+        this.lastZoneTriggered = null;
       }
     });
 

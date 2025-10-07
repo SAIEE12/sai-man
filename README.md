@@ -1,6 +1,6 @@
-# PAC-PORT | Interactive Pac-Man Portfolio
+# SAI-MAN Portfolio | Sai Manish Ananthula
 
-A unique, fully playable Pac-Man game that doubles as an interactive portfolio website for **Sai Manish Ananthula**.
+A unique, fully playable Pac-Man-style game that doubles as an interactive portfolio website for **Sai Manish Ananthula**.
 
 ![Pac-Man Portfolio](https://img.shields.io/badge/Game-Pac--Man-yellow?style=for-the-badge&logo=arcade)
 ![Built with Phaser](https://img.shields.io/badge/Phaser-3-blue?style=for-the-badge)
@@ -8,7 +8,7 @@ A unique, fully playable Pac-Man game that doubles as an interactive portfolio w
 
 ## 🎮 Overview
 
-Navigate through a classic Pac-Man maze while discovering my professional experience, projects, and contact information. Move Pac-Man into special colored zones to trigger portfolio overlays!
+Navigate SAI-MAN through a classic Pac-Man maze while discovering my professional experience, projects, and contact information. Move SAI-MAN into special colored zones to trigger portfolio overlays! On first visit, you'll see an intro modal with options to Start Game or View Resume.
 
 ### Features
 
@@ -20,15 +20,19 @@ Navigate through a classic Pac-Man maze while discovering my professional experi
   - Power mode (eat ghosts when they turn blue!)
 
 - 🎨 **Portfolio Integration**
-  - **Green Zone** → About Me & Skills
-  - **Magenta Zone** → Featured Projects
-  - **Cyan Zone** → Contact Information
+  - **Green Zone** → Basic Details & Contact Links
+  - **Magenta Zone** → Featured Projects (Trackon, Management Portal, etc.)
+  - **Blue Zone** → Professional Experience (Bitsilica, Aubergine, Rejolt)
+  - **Yellow Zone** → Technical Skills (Languages, DevOps, Frameworks, etc.)
+  - **Cyan Zone** → Contact Information (Special: resumes game from same position)
 
 - 🕹️ **Game Mechanics**
-  - Arrow keys for movement
+  - Arrow keys OR WASD for movement
   - Press **P** to pause/resume
   - Press **R** to restart after game over
-  - Responsive design (works on desktop and mobile)
+  - Mobile: On-screen D-pad + swipe support
+  - Intro modal appears once per browser (localStorage)
+  - Contact overlay resumes game from same position (no restart)
 
 ## 🚀 Tech Stack
 
@@ -63,19 +67,24 @@ The game will be available at `http://localhost:8080`
 
 | Key | Action |
 |-----|--------|
-| **↑ ↓ ← →** | Move Pac-Man |
+| **↑ ↓ ← →** or **W A S D** | Move SAI-MAN |
 | **P** | Pause/Resume Game |
 | **R** | Restart (after game over) |
+| **Touch/Swipe** | Mobile controls (D-pad overlay) |
 
 ## 🎨 Customization
 
 ### Modify Portfolio Content
 
 Edit `src/components/PortfolioOverlay.tsx` to update:
-- Your name and title
-- Skills and technologies
-- Project descriptions
-- Contact links (GitHub, LinkedIn, Email, Resume)
+- Basic details (name, location, contact info)
+- Projects (add/remove project cards)
+- Experience timeline
+- Skills categories
+- Contact links
+
+**Note:** The intro modal uses `localStorage` with key `saiman-visited`. Clear it to see the modal again.
+**Note:** The Contact zone has special behavior - it resumes the game from the same position instead of restarting.
 
 ### Adjust Game Difficulty
 
@@ -98,24 +107,29 @@ const maze = [
 
 ### Update Portfolio Zones
 
-Modify `createPortfolioZones()` to change zone positions or add new zones.
+Modify `createPortfolioZones()` in `src/game/scenes/PlayScene.ts` to change zone positions or add new zones.
+Zone metadata can also be stored in `src/game/maps/level1.json` for easier configuration.
 
 ## 🏗️ Project Structure
 
 ```
 src/
 ├── components/
-│   ├── PhaserGame.tsx        # Phaser game wrapper
-│   ├── PortfolioOverlay.tsx  # Portfolio content overlays
-│   └── ui/                   # Reusable UI components
+│   ├── PhaserGame.tsx         # Phaser game wrapper
+│   ├── PortfolioOverlay.tsx   # Portfolio content overlays (5 zones)
+│   ├── IntroModal.tsx         # First-visit modal
+│   ├── MobileControls.tsx     # Mobile D-pad overlay
+│   └── ui/                    # Reusable UI components
 ├── game/
+│   ├── maps/
+│   │   └── level1.json        # Maze layout with zone metadata
 │   └── scenes/
-│       ├── BootScene.ts      # Initial boot
-│       ├── PreloadScene.ts   # Asset loading
-│       └── PlayScene.ts      # Main game logic
+│       ├── BootScene.ts       # Initial boot
+│       ├── PreloadScene.ts    # Asset loading
+│       └── PlayScene.ts       # Main game logic (WASD, pause, zones)
 ├── pages/
-│   └── Index.tsx             # Main page
-└── index.css                 # Arcade theme styles
+│   └── Index.tsx              # Main page
+└── index.css                  # Arcade theme styles
 ```
 
 ## 🌐 Deployment
@@ -145,12 +159,14 @@ The project features a **retro arcade aesthetic** with:
 
 ## 📝 Future Enhancements
 
-- [ ] Add sound effects and background music
-- [ ] Mobile touch controls / virtual joystick
+- [x] WASD controls
+- [x] Mobile D-pad and swipe controls
+- [x] Intro modal with localStorage
+- [x] Five portfolio zones with detailed resume content
+- [ ] Sound effects and background music
+- [ ] Better ghost AI (pathfinding)
 - [ ] Multiple maze levels
-- [ ] High score leaderboard
-- [ ] Animation improvements
-- [ ] More portfolio sections
+- [ ] High score leaderboard with persistence
 
 ## 👨‍💻 About the Developer
 
@@ -161,9 +177,11 @@ The project features a **retro arcade aesthetic** with:
 
 ### Connect
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Sai Manish Ananthula](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- GitHub: [@SAIEE12](https://github.com/SAIEE12)
+- LinkedIn: [Sai Manish Ananthula](https://www.linkedin.com/in/sai-manish-ananthula)
+- Email: saimanishsai19189@gmail.com
+- Phone: +91 9959110929
+- LeetCode: [sai_manish](https://leetcode.com/u/sai_manish/)
 
 ## 📄 License
 
