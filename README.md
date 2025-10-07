@@ -1,73 +1,174 @@
-# Welcome to your Lovable project
+# PAC-PORT | Interactive Pac-Man Portfolio
 
-## Project info
+A unique, fully playable Pac-Man game that doubles as an interactive portfolio website for **Sai Manish Ananthula**.
 
-**URL**: https://lovable.dev/projects/93f8c631-31e0-477d-94bf-abeaf36187b4
+![Pac-Man Portfolio](https://img.shields.io/badge/Game-Pac--Man-yellow?style=for-the-badge&logo=arcade)
+![Built with Phaser](https://img.shields.io/badge/Phaser-3-blue?style=for-the-badge)
+![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)
 
-## How can I edit this code?
+## 🎮 Overview
 
-There are several ways of editing your application.
+Navigate through a classic Pac-Man maze while discovering my professional experience, projects, and contact information. Move Pac-Man into special colored zones to trigger portfolio overlays!
 
-**Use Lovable**
+### Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/93f8c631-31e0-477d-94bf-abeaf36187b4) and start prompting.
+- ✅ **Fully Playable Pac-Man Game**
+  - Classic maze navigation
+  - 4 AI-controlled ghosts (Blinky, Pinky, Inky, Clyde)
+  - Pellets and power pellets
+  - Score tracking and lives system
+  - Power mode (eat ghosts when they turn blue!)
 
-Changes made via Lovable will be committed automatically to this repo.
+- 🎨 **Portfolio Integration**
+  - **Green Zone** → About Me & Skills
+  - **Magenta Zone** → Featured Projects
+  - **Cyan Zone** → Contact Information
 
-**Use your preferred IDE**
+- 🕹️ **Game Mechanics**
+  - Arrow keys for movement
+  - Press **P** to pause/resume
+  - Press **R** to restart after game over
+  - Responsive design (works on desktop and mobile)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Technology | Purpose |
+|------------|---------|
+| **Phaser 3** | Game engine for 2D gameplay |
+| **React 18** | UI framework and overlay system |
+| **TypeScript** | Type-safe development |
+| **Vite** | Fast build tool and dev server |
+| **Tailwind CSS** | Styling and arcade theme |
+| **Lucide React** | Modern icon system |
 
-Follow these steps:
+## 📦 Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to project directory
+cd pacman-portfolio
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The game will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🎯 Controls
 
-**Use GitHub Codespaces**
+| Key | Action |
+|-----|--------|
+| **↑ ↓ ← →** | Move Pac-Man |
+| **P** | Pause/Resume Game |
+| **R** | Restart (after game over) |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎨 Customization
 
-## What technologies are used for this project?
+### Modify Portfolio Content
 
-This project is built with:
+Edit `src/components/PortfolioOverlay.tsx` to update:
+- Your name and title
+- Skills and technologies
+- Project descriptions
+- Contact links (GitHub, LinkedIn, Email, Resume)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Adjust Game Difficulty
 
-## How can I deploy this project?
+In `src/game/scenes/PlayScene.ts`, modify:
+```typescript
+private playerSpeed = 150;  // Increase for faster Pac-Man
+private ghostSpeed = 100;   // Increase for harder ghosts
+```
 
-Simply open [Lovable](https://lovable.dev/projects/93f8c631-31e0-477d-94bf-abeaf36187b4) and click on Share -> Publish.
+### Change Maze Layout
 
-## Can I connect a custom domain to my Lovable project?
+Edit the `createMaze()` function in `PlayScene.ts`:
+```typescript
+const maze = [
+  [1,1,1,1,1,...], // 1 = wall, 0 = path
+  [1,0,0,0,0,...],
+  // ... customize your maze
+];
+```
 
-Yes, you can!
+### Update Portfolio Zones
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Modify `createPortfolioZones()` to change zone positions or add new zones.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🏗️ Project Structure
+
+```
+src/
+├── components/
+│   ├── PhaserGame.tsx        # Phaser game wrapper
+│   ├── PortfolioOverlay.tsx  # Portfolio content overlays
+│   └── ui/                   # Reusable UI components
+├── game/
+│   └── scenes/
+│       ├── BootScene.ts      # Initial boot
+│       ├── PreloadScene.ts   # Asset loading
+│       └── PlayScene.ts      # Main game logic
+├── pages/
+│   └── Index.tsx             # Main page
+└── index.css                 # Arcade theme styles
+```
+
+## 🌐 Deployment
+
+### Deploy to Vercel
+
+```bash
+npm run build
+npx vercel --prod
+```
+
+### Deploy to Netlify
+
+```bash
+npm run build
+npx netlify deploy --prod --dir=dist
+```
+
+## 🎭 Design Philosophy
+
+The project features a **retro arcade aesthetic** with:
+- Neon yellow Pac-Man (`#FFD700`)
+- Colorful ghosts (Red, Pink, Cyan, Orange)
+- Dark background with glowing elements
+- Monospace "Courier New" font
+- Smooth animations and transitions
+
+## 📝 Future Enhancements
+
+- [ ] Add sound effects and background music
+- [ ] Mobile touch controls / virtual joystick
+- [ ] Multiple maze levels
+- [ ] High score leaderboard
+- [ ] Animation improvements
+- [ ] More portfolio sections
+
+## 👨‍💻 About the Developer
+
+**Sai Manish Ananthula**
+- Full-Stack & DevOps Engineer
+- Passionate about cloud technologies and automation
+- Building scalable applications with modern tech stacks
+
+### Connect
+
+- GitHub: [@yourusername](https://github.com/yourusername)
+- LinkedIn: [Sai Manish Ananthula](https://linkedin.com/in/yourprofile)
+- Email: your.email@example.com
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+**Built with ❤️ using Lovable** • [Visit Lovable](https://lovable.dev)
