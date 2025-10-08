@@ -13,14 +13,14 @@ const PhaserGame = ({ onZoneTrigger }: PhaserGameProps) => {
   const phaserGameRef = useRef<Phaser.Game | null>(null);
 
   useEffect(() => {
-    if (!gameRef.current) return;
+    if (!gameRef.current || phaserGameRef.current) return;
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 640,
       height: 416,
       parent: gameRef.current,
-      backgroundColor: '#0a0a1a',
+      backgroundColor: '#000000', // Black like original Pac-Man
       scene: [BootScene, PreloadScene, PlayScene],
       physics: {
         default: 'arcade',
@@ -51,7 +51,7 @@ const PhaserGame = ({ onZoneTrigger }: PhaserGameProps) => {
         phaserGameRef.current = null;
       }
     };
-  }, [onZoneTrigger]);
+  }, []);
 
   return (
     <div

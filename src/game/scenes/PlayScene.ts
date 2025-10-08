@@ -44,10 +44,11 @@ export default class PlayScene extends Phaser.Scene {
     // Create maze
     this.createMaze();
 
-    // Create player (Pac-Man) with graphics for mouth animation
-    this.playerX = this.tileSize * 1.5;
-    this.playerY = this.tileSize * 1.5;
+    // Create player (Pac-Man) - spawn in safe position (row 9, col 1)
+    this.playerX = this.tileSize * 1 + this.tileSize / 2;
+    this.playerY = this.tileSize * 9 + this.tileSize / 2;
     this.player = this.add.graphics();
+    this.playerDirection = { x: 1, y: 0 }; // Start facing right
     this.drawPlayer();
 
     // Create ghosts
@@ -109,6 +110,7 @@ export default class PlayScene extends Phaser.Scene {
     if (!this.player) return;
     
     this.player.clear();
+    this.player.setPosition(0, 0);
     
     // Calculate rotation based on direction
     let rotation = 0;
@@ -118,14 +120,18 @@ export default class PlayScene extends Phaser.Scene {
     else if (this.playerDirection.y === 1) rotation = Math.PI / 2;
 
     // Draw Pac-Man with mouth animation
-    this.player.fillStyle(0xFFD700, 1);
-    const mouthOpen = Math.abs(this.mouthAngle) * 45; // 0 to ~22.5 degrees
-    this.player.slice(this.playerX, this.playerY, 12, 
-      Phaser.Math.DegToRad(mouthOpen), 
-      Phaser.Math.DegToRad(360 - mouthOpen), 
+    this.player.fillStyle(0xFFFF00, 1); // Bright yellow
+    const mouthOpen = Math.abs(this.mouthAngle) * 0.4; // 0 to ~0.4 radians
+    
+    // Draw pie slice (Pac-Man shape)
+    this.player.beginPath();
+    this.player.moveTo(this.playerX, this.playerY);
+    this.player.arc(this.playerX, this.playerY, 12, 
+      rotation + mouthOpen, 
+      rotation + (Math.PI * 2) - mouthOpen, 
       false);
+    this.player.closePath();
     this.player.fillPath();
-    this.player.setRotation(rotation);
   }
 
   private emitGameStats() {
@@ -160,7 +166,7 @@ export default class PlayScene extends Phaser.Scene {
             y * this.tileSize + this.tileSize / 2,
             this.tileSize - 2,
             this.tileSize - 2,
-            0x0000FF
+            0x2121DE // Dark blue like original Pac-Man
           );
           this.walls.push(wall);
         }
@@ -220,13 +226,15 @@ export default class PlayScene extends Phaser.Scene {
     graphics.closePath();
     graphics.fillPath();
     
-    // Eyes
-    graphics.fillStyle(0xFFFFFF, 1);
-    graphics.fillCircle(x - 4, y - 2, 3);
-    graphics.fillCircle(x + 4, y - 2, 3);
-    graphics.fillStyle(0x0000FF, 1);
-    graphics.fillCircle(x - 4, y - 2, 1.5);
-    graphics.fillCircle(x + 4, y - 2, 1.5);
+    // Eyes (unless frightened)
+    if (color !== 0x2121DE) { // Not frightened
+      graphics.fillStyle(0xFFFFFF, 1);
+      graphics.fillCircle(x - 4, y - 2, 3);
+      graphics.fillCircle(x + 4, y - 2, 3);
+      graphics.fillStyle(0x000000, 1);
+      graphics.fillCircle(x - 4, y - 2, 1.5);
+      graphics.fillCircle(x + 4, y - 2, 1.5);
+    }
   }
 
   private getScatterTarget(name: string): { x: number, y: number } {
@@ -457,10 +465,18 @@ export default class PlayScene extends Phaser.Scene {
     if (!this.checkWallCollision(newX, newY)) {
       this.playerX = newX;
       this.playerY = newY;
-      if (this.player) {
-        this.player.setPosition(this.playerX, this.playerY);
-      }
     }
+
+    // Tunnel wrapping (left/right edges)
+    const width = this.cameras.main.width;
+    if (this.playerX < 0) {
+      this.playerX = width;
+    } else if (this.playerX > width) {
+      this.playerX = 0;
+    }
+
+    // Redraw player with updated position and mouth animation
+    this.drawPlayer();
 
     // Move ghosts
     this.ghosts.forEach(ghost => {
@@ -579,15 +595,15 @@ export default class PlayScene extends Phaser.Scene {
   private activatePowerMode() {
     this.powerMode = true;
     this.ghosts.forEach(ghost => {
-      ghost.color = 0x0000FF;
-      this.drawGhost(ghost.graphics, 0, 0, 0x0000FF);
+      ghost.color = 0x2121DE; // Frightened ghost color (dark blue)
+      this.drawGhost(ghost.graphics, 0, 0, 0x2121DE);
     });
 
     if (this.powerModeTimer) {
       this.powerModeTimer.destroy();
     }
 
-    this.powerModeTimer = this.time.delayedCall(10000, () => {
+    this.powerModeTimer = this.time.delayedCall(8000, () => {
       this.powerMode = false;
       this.ghosts.forEach(ghost => {
         ghost.color = ghost.originalColor;
@@ -603,12 +619,24 @@ export default class PlayScene extends Phaser.Scene {
     if (this.lives <= 0) {
       this.endGame();
     } else {
-      // Reset player position
-      this.playerX = this.tileSize * 1.5;
-      this.playerY = this.tileSize * 1.5;
-      if (this.player) {
-        this.player.setPosition(this.playerX, this.playerY);
-      }
+      // Reset player position to safe spawn
+      this.playerX = this.tileSize * 1 + this.tileSize / 2;
+      this.playerY = this.tileSize * 9 + this.tileSize / 2;
+      this.playerDirection = { x: 1, y: 0 };
+      this.drawPlayer();
+      
+      // Reset ghosts
+      this.ghosts.forEach((ghost, i) => {
+        const configs = [
+          { x: 9, y: 5 },
+          { x: 8, y: 6 },
+          { x: 10, y: 6 },
+          { x: 11, y: 5 }
+        ];
+        ghost.x = configs[i].x * this.tileSize + this.tileSize / 2;
+        ghost.y = configs[i].y * this.tileSize + this.tileSize / 2;
+        ghost.graphics.setPosition(ghost.x, ghost.y);
+      });
     }
   }
 
@@ -650,11 +678,13 @@ export default class PlayScene extends Phaser.Scene {
     );
     text.setOrigin(0.5);
 
-    this.input.keyboard?.on('keydown-R', () => {
+    this.input.keyboard?.once('keydown-R', () => {
       this.scene.restart();
-      this.score = 0;
-      this.lives = 3;
-      this.gameOver = false;
     });
+  }
+
+  shutdown() {
+    // Clean up event listeners
+    window.removeEventListener('mobileControl', this.handleMobileControl.bind(this) as EventListener);
   }
 }
