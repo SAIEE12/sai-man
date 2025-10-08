@@ -280,9 +280,11 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
 
   const { title, content } = getContent();
 
+  if (!zone) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
-      <Card className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto m-4 p-6 arcade-border">
+    <div className="flex-shrink-0 w-96 animate-in slide-in-from-right duration-300">
+      <Card className="relative h-[600px] overflow-y-auto p-6 arcade-border bg-card/95 backdrop-blur-sm">
         <Button
           variant="ghost"
           size="icon"
@@ -292,18 +294,20 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
           <X className="h-6 w-6" />
         </Button>
         
-        <h1 className="text-3xl font-bold mb-6 text-primary arcade-glow">
+        <h1 className="text-2xl font-bold mb-6 text-primary arcade-glow pr-12">
           {title}
         </h1>
         
-        {content}
+        <div className="space-y-4">
+          {content}
+        </div>
         
-        <div className="mt-6 pt-6 border-t border-border">
+        <div className="mt-6 pt-6 border-t border-border sticky bottom-0 bg-card">
           <Button 
             onClick={onClose}
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 arcade-glow"
           >
-            BACK TO GAME
+            CLOSE
           </Button>
         </div>
       </Card>

@@ -8,19 +8,16 @@ interface GhostConfig {
 }
 
 export default class PlayScene extends Phaser.Scene {
-  private player?: Phaser.GameObjects.Arc;
-  private ghosts: Phaser.GameObjects.Arc[] = [];
+  private player?: Phaser.GameObjects.Graphics;
+  private ghosts: any[] = [];
   private pellets: Phaser.GameObjects.Arc[] = [];
   private powerPellets: Phaser.GameObjects.Arc[] = [];
   private walls: Phaser.GameObjects.Rectangle[] = [];
   private score = 0;
   private lives = 3;
-  private scoreText?: Phaser.GameObjects.Text;
-  private livesText?: Phaser.GameObjects.Text;
   private gameOver = false;
   private isPaused = false;
   private pauseText?: Phaser.GameObjects.Text;
-  private controlsText?: Phaser.GameObjects.Text;
   private playerSpeed = 150;
   private ghostSpeed = 100;
   private powerMode = false;
@@ -34,25 +31,24 @@ export default class PlayScene extends Phaser.Scene {
   private mouthAngle = 0;
   private mouthDirection = 1;
   private lastZoneTriggered: string | null = null;
+  private playerX = 0;
+  private playerY = 0;
+  private ghostMode: 'scatter' | 'chase' = 'scatter';
+  private ghostModeTimer?: Phaser.Time.TimerEvent;
 
   constructor() {
     super({ key: 'PlayScene' });
   }
 
   create() {
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
-
     // Create maze
     this.createMaze();
 
-    // Create player (Pac-Man)
-    this.player = this.add.circle(
-      this.tileSize * 1.5,
-      this.tileSize * 1.5,
-      12,
-      0xFFD700
-    );
+    // Create player (Pac-Man) with graphics for mouth animation
+    this.playerX = this.tileSize * 1.5;
+    this.playerY = this.tileSize * 1.5;
+    this.player = this.add.graphics();
+    this.drawPlayer();
 
     // Create ghosts
     this.createGhosts();
@@ -62,27 +58,6 @@ export default class PlayScene extends Phaser.Scene {
 
     // Create portfolio zones
     this.createPortfolioZones();
-
-    // UI
-    this.scoreText = this.add.text(16, 16, 'SCORE: 0', {
-      fontSize: '20px',
-      color: '#FFD700',
-      fontFamily: 'Courier New',
-    });
-
-    this.livesText = this.add.text(16, 46, 'LIVES: 3', {
-      fontSize: '20px',
-      color: '#FFD700',
-      fontFamily: 'Courier New',
-    });
-
-    this.controlsText = this.add.text(width - 16, 16, 'Press P to Pause', {
-      fontSize: '16px',
-      color: '#FFD700',
-      fontFamily: 'Courier New',
-      align: 'right'
-    });
-    this.controlsText.setOrigin(1, 0);
 
     // Input - Arrow keys and WASD
     this.cursors = this.input.keyboard?.createCursorKeys();
@@ -97,9 +72,6 @@ export default class PlayScene extends Phaser.Scene {
       this.togglePause();
     });
 
-    // Listen for resume game event from React
-    window.addEventListener('resumeGame', this.handleResumeGame.bind(this));
-
     // Listen for mobile controls
     window.addEventListener('mobileControl', this.handleMobileControl.bind(this) as EventListener);
 
@@ -111,13 +83,55 @@ export default class PlayScene extends Phaser.Scene {
       loop: true
     });
 
-    // Ghost AI
+    // Ghost AI - toggle between scatter and chase
     this.time.addEvent({
-      delay: 2000,
+      delay: 7000,
+      callback: () => {
+        this.ghostMode = this.ghostMode === 'scatter' ? 'chase' : 'scatter';
+      },
+      callbackScope: this,
+      loop: true
+    });
+
+    // Update ghost targets frequently
+    this.time.addEvent({
+      delay: 500,
       callback: this.updateGhostTargets,
       callbackScope: this,
       loop: true
     });
+
+    // Emit initial game stats
+    this.emitGameStats();
+  }
+
+  private drawPlayer() {
+    if (!this.player) return;
+    
+    this.player.clear();
+    
+    // Calculate rotation based on direction
+    let rotation = 0;
+    if (this.playerDirection.x === 1) rotation = 0;
+    else if (this.playerDirection.x === -1) rotation = Math.PI;
+    else if (this.playerDirection.y === -1) rotation = -Math.PI / 2;
+    else if (this.playerDirection.y === 1) rotation = Math.PI / 2;
+
+    // Draw Pac-Man with mouth animation
+    this.player.fillStyle(0xFFD700, 1);
+    const mouthOpen = Math.abs(this.mouthAngle) * 45; // 0 to ~22.5 degrees
+    this.player.slice(this.playerX, this.playerY, 12, 
+      Phaser.Math.DegToRad(mouthOpen), 
+      Phaser.Math.DegToRad(360 - mouthOpen), 
+      false);
+    this.player.fillPath();
+    this.player.setRotation(rotation);
+  }
+
+  private emitGameStats() {
+    window.dispatchEvent(new CustomEvent('gameStats', {
+      detail: { score: this.score, lives: this.lives }
+    }));
   }
 
   private createMaze() {
@@ -163,17 +177,66 @@ export default class PlayScene extends Phaser.Scene {
     ];
 
     ghostConfigs.forEach(config => {
-      const ghost = this.add.circle(
-        config.startX * this.tileSize + this.tileSize / 2,
-        config.startY * this.tileSize + this.tileSize / 2,
-        12,
-        config.color
-      );
-      (ghost as any).targetX = 0;
-      (ghost as any).targetY = 0;
-      (ghost as any).name = config.name;
-      this.ghosts.push(ghost);
+      const graphics = this.add.graphics();
+      const x = config.startX * this.tileSize + this.tileSize / 2;
+      const y = config.startY * this.tileSize + this.tileSize / 2;
+      
+      this.drawGhost(graphics, 0, 0, config.color);
+      graphics.setPosition(x, y);
+      
+      this.ghosts.push({
+        graphics,
+        x,
+        y,
+        targetX: x,
+        targetY: y,
+        color: config.color,
+        originalColor: config.color,
+        name: config.name,
+        scatterTarget: this.getScatterTarget(config.name)
+      });
     });
+  }
+
+  private drawGhost(graphics: Phaser.GameObjects.Graphics, x: number, y: number, color: number) {
+    graphics.clear();
+    graphics.fillStyle(color, 1);
+    
+    // Body (semi-circle top)
+    graphics.beginPath();
+    graphics.arc(x, y - 2, 12, Math.PI, 0, true);
+    
+    // Bottom wavy part
+    graphics.lineTo(12 + x, y + 8);
+    graphics.lineTo(9 + x, y + 5);
+    graphics.lineTo(6 + x, y + 8);
+    graphics.lineTo(3 + x, y + 5);
+    graphics.lineTo(0 + x, y + 8);
+    graphics.lineTo(-3 + x, y + 5);
+    graphics.lineTo(-6 + x, y + 8);
+    graphics.lineTo(-9 + x, y + 5);
+    graphics.lineTo(-12 + x, y + 8);
+    graphics.lineTo(-12 + x, y - 2);
+    graphics.closePath();
+    graphics.fillPath();
+    
+    // Eyes
+    graphics.fillStyle(0xFFFFFF, 1);
+    graphics.fillCircle(x - 4, y - 2, 3);
+    graphics.fillCircle(x + 4, y - 2, 3);
+    graphics.fillStyle(0x0000FF, 1);
+    graphics.fillCircle(x - 4, y - 2, 1.5);
+    graphics.fillCircle(x + 4, y - 2, 1.5);
+  }
+
+  private getScatterTarget(name: string): { x: number, y: number } {
+    switch (name) {
+      case 'Blinky': return { x: 18 * this.tileSize, y: 1 * this.tileSize };
+      case 'Pinky': return { x: 1 * this.tileSize, y: 1 * this.tileSize };
+      case 'Inky': return { x: 18 * this.tileSize, y: 11 * this.tileSize };
+      case 'Clyde': return { x: 1 * this.tileSize, y: 11 * this.tileSize };
+      default: return { x: 10 * this.tileSize, y: 6 * this.tileSize };
+    }
   }
 
   private createPellets() {
@@ -265,26 +328,55 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   private animateMouth() {
-    if (!this.player || this.isPaused) return;
+    if (!this.player || this.isPaused || this.gameOver) return;
     
-    this.mouthAngle += 0.2 * this.mouthDirection;
+    this.mouthAngle += 0.15 * this.mouthDirection;
     if (this.mouthAngle > 0.5 || this.mouthAngle < 0) {
       this.mouthDirection *= -1;
     }
+    this.drawPlayer();
   }
 
   private updateGhostTargets() {
-    if (!this.player || this.isPaused) return;
+    if (this.isPaused || this.gameOver) return;
 
     this.ghosts.forEach(ghost => {
       if (this.powerMode) {
         // Run away from player
-        (ghost as any).targetX = ghost.x + (ghost.x - this.player!.x);
-        (ghost as any).targetY = ghost.y + (ghost.y - this.player!.y);
+        ghost.targetX = ghost.x + (ghost.x - this.playerX);
+        ghost.targetY = ghost.y + (ghost.y - this.playerY);
+      } else if (this.ghostMode === 'scatter') {
+        // Go to scatter corners
+        ghost.targetX = ghost.scatterTarget.x;
+        ghost.targetY = ghost.scatterTarget.y;
       } else {
-        // Chase player
-        (ghost as any).targetX = this.player!.x;
-        (ghost as any).targetY = this.player!.y;
+        // Chase player with personality
+        switch (ghost.name) {
+          case 'Blinky': // Direct chase
+            ghost.targetX = this.playerX;
+            ghost.targetY = this.playerY;
+            break;
+          case 'Pinky': // Ambush ahead
+            ghost.targetX = this.playerX + this.playerDirection.x * this.tileSize * 4;
+            ghost.targetY = this.playerY + this.playerDirection.y * this.tileSize * 4;
+            break;
+          case 'Inky': // Patrol
+            const dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, this.playerX, this.playerY);
+            if (dist < this.tileSize * 8) {
+              ghost.targetX = this.playerX;
+              ghost.targetY = this.playerY;
+            } else {
+              ghost.targetX = ghost.scatterTarget.x;
+              ghost.targetY = ghost.scatterTarget.y;
+            }
+            break;
+          case 'Clyde': // Random-ish
+            if (Math.random() > 0.7) {
+              ghost.targetX = this.playerX;
+              ghost.targetY = this.playerY;
+            }
+            break;
+        }
       }
     });
   }
@@ -314,14 +406,6 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  private handleResumeGame() {
-    if (this.isPaused && this.currentZone !== 'contact') {
-      this.isPaused = false;
-      if (this.pauseText) {
-        this.pauseText.setVisible(false);
-      }
-    }
-  }
 
   private handleMobileControl(event: CustomEvent) {
     if (this.gameOver || this.isPaused || !this.player) return;
@@ -367,29 +451,22 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     // Move player
-    const newX = this.player.x + (velocityX * this.game.loop.delta) / 1000;
-    const newY = this.player.y + (velocityY * this.game.loop.delta) / 1000;
+    const newX = this.playerX + (velocityX * this.game.loop.delta) / 1000;
+    const newY = this.playerY + (velocityY * this.game.loop.delta) / 1000;
 
     if (!this.checkWallCollision(newX, newY)) {
-      this.player.setPosition(newX, newY);
-    }
-
-    // Rotate player based on direction
-    if (this.playerDirection.x === 1) {
-      this.player.rotation = 0;
-    } else if (this.playerDirection.x === -1) {
-      this.player.rotation = Math.PI;
-    } else if (this.playerDirection.y === -1) {
-      this.player.rotation = -Math.PI / 2;
-    } else if (this.playerDirection.y === 1) {
-      this.player.rotation = Math.PI / 2;
+      this.playerX = newX;
+      this.playerY = newY;
+      if (this.player) {
+        this.player.setPosition(this.playerX, this.playerY);
+      }
     }
 
     // Move ghosts
     this.ghosts.forEach(ghost => {
       const angle = Math.atan2(
-        (ghost as any).targetY - ghost.y,
-        (ghost as any).targetX - ghost.x
+        ghost.targetY - ghost.y,
+        ghost.targetX - ghost.x
       );
       
       const speed = this.powerMode ? this.ghostSpeed * 0.5 : this.ghostSpeed;
@@ -397,22 +474,24 @@ export default class PlayScene extends Phaser.Scene {
       const newGhostY = ghost.y + Math.sin(angle) * speed * this.game.loop.delta / 1000;
       
       if (!this.checkWallCollision(newGhostX, newGhostY)) {
-        ghost.setPosition(newGhostX, newGhostY);
+        ghost.x = newGhostX;
+        ghost.y = newGhostY;
+        ghost.graphics.setPosition(newGhostX, newGhostY);
       }
     });
 
     // Check pellet collection
     this.pellets = this.pellets.filter(pellet => {
       const distance = Phaser.Math.Distance.Between(
-        this.player!.x,
-        this.player!.y,
+        this.playerX,
+        this.playerY,
         pellet.x,
         pellet.y
       );
       
       if (distance < 20) {
         this.score += 10;
-        this.scoreText?.setText(`SCORE: ${this.score}`);
+        this.emitGameStats();
         pellet.destroy();
         return false;
       }
@@ -422,15 +501,15 @@ export default class PlayScene extends Phaser.Scene {
     // Check power pellet collection
     this.powerPellets = this.powerPellets.filter(pellet => {
       const distance = Phaser.Math.Distance.Between(
-        this.player!.x,
-        this.player!.y,
+        this.playerX,
+        this.playerY,
         pellet.x,
         pellet.y
       );
       
       if (distance < 20) {
         this.score += 50;
-        this.scoreText?.setText(`SCORE: ${this.score}`);
+        this.emitGameStats();
         this.activatePowerMode();
         pellet.destroy();
         return false;
@@ -441,8 +520,8 @@ export default class PlayScene extends Phaser.Scene {
     // Check ghost collision
     this.ghosts.forEach(ghost => {
       const distance = Phaser.Math.Distance.Between(
-        this.player!.x,
-        this.player!.y,
+        this.playerX,
+        this.playerY,
         ghost.x,
         ghost.y
       );
@@ -451,11 +530,10 @@ export default class PlayScene extends Phaser.Scene {
         if (this.powerMode) {
           // Eat ghost
           this.score += 200;
-          this.scoreText?.setText(`SCORE: ${this.score}`);
-          ghost.setPosition(
-            9 * this.tileSize + this.tileSize / 2,
-            6 * this.tileSize + this.tileSize / 2
-          );
+          this.emitGameStats();
+          ghost.x = 9 * this.tileSize + this.tileSize / 2;
+          ghost.y = 6 * this.tileSize + this.tileSize / 2;
+          ghost.graphics.setPosition(ghost.x, ghost.y);
         } else {
           // Lose life
           this.loseLife();
@@ -463,11 +541,11 @@ export default class PlayScene extends Phaser.Scene {
       }
     });
 
-    // Check portfolio zones - pause game when entering zones
+    // Check portfolio zones - NO auto-pause, just trigger overlay
     this.portfolioZones.forEach(zone => {
       const distance = Phaser.Math.Distance.Between(
-        this.player!.x,
-        this.player!.y,
+        this.playerX,
+        this.playerY,
         zone.x,
         zone.y
       );
@@ -477,12 +555,6 @@ export default class PlayScene extends Phaser.Scene {
         if (this.lastZoneTriggered !== zoneType) {
           this.lastZoneTriggered = zoneType;
           this.currentZone = zoneType;
-          
-          // Pause game for all zones except contact (contact has special resume behavior)
-          if (zoneType !== 'contact') {
-            this.isPaused = true;
-          }
-          
           this.triggerPortfolioZone(zoneType);
         }
       } else if (this.lastZoneTriggered) {
@@ -507,7 +579,8 @@ export default class PlayScene extends Phaser.Scene {
   private activatePowerMode() {
     this.powerMode = true;
     this.ghosts.forEach(ghost => {
-      ghost.setFillStyle(0x0000FF);
+      ghost.color = 0x0000FF;
+      this.drawGhost(ghost.graphics, 0, 0, 0x0000FF);
     });
 
     if (this.powerModeTimer) {
@@ -516,25 +589,26 @@ export default class PlayScene extends Phaser.Scene {
 
     this.powerModeTimer = this.time.delayedCall(10000, () => {
       this.powerMode = false;
-      const colors = [0xFF0000, 0xFFB8FF, 0x00FFFF, 0xFFB852];
-      this.ghosts.forEach((ghost, index) => {
-        ghost.setFillStyle(colors[index]);
+      this.ghosts.forEach(ghost => {
+        ghost.color = ghost.originalColor;
+        this.drawGhost(ghost.graphics, 0, 0, ghost.originalColor);
       });
     });
   }
 
   private loseLife() {
     this.lives--;
-    this.livesText?.setText(`LIVES: ${this.lives}`);
+    this.emitGameStats();
     
     if (this.lives <= 0) {
       this.endGame();
     } else {
       // Reset player position
-      this.player?.setPosition(
-        this.tileSize * 1.5,
-        this.tileSize * 1.5
-      );
+      this.playerX = this.tileSize * 1.5;
+      this.playerY = this.tileSize * 1.5;
+      if (this.player) {
+        this.player.setPosition(this.playerX, this.playerY);
+      }
     }
   }
 

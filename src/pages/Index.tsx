@@ -1,12 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PhaserGame from '@/components/PhaserGame';
 import PortfolioOverlay from '@/components/PortfolioOverlay';
 import IntroModal from '@/components/IntroModal';
 import MobileControls from '@/components/MobileControls';
+import GameHUD from '@/components/GameHUD';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [activeZone, setActiveZone] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+
+  useEffect(() => {
+    const handleGameStats = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setScore(customEvent.detail.score);
+      setLives(customEvent.detail.lives);
+    };
+
+    window.addEventListener('gameStats', handleGameStats);
+    return () => window.removeEventListener('gameStats', handleGameStats);
+  }, []);
 
   const handleZoneTrigger = (zone: string) => {
     setActiveZone(zone);
@@ -14,10 +28,6 @@ const Index = () => {
 
   const handleCloseOverlay = () => {
     setActiveZone(null);
-    // Emit event to resume game (except for contact zone)
-    if (activeZone !== 'contact') {
-      window.dispatchEvent(new CustomEvent('resumeGame'));
-    }
   };
 
   const handleStartGame = () => {
@@ -37,10 +47,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 overflow-hidden">
       <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
 
-      <header className="mb-8 text-center">
+      <header className="mb-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-primary arcade-glow mb-2">
           SAI-MAN
         </h1>
@@ -49,34 +59,38 @@ const Index = () => {
         </p>
       </header>
 
-      <div className="w-full max-w-4xl relative">
-        <Button
-          onClick={handleContactClick}
-          variant="outline"
-          size="sm"
-          className="absolute top-2 right-2 z-30 arcade-border"
-        >
-          Contact
-        </Button>
-        <PhaserGame onZoneTrigger={handleZoneTrigger} />
-      </div>
-
-      <div className="mt-8 text-center space-y-2">
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>🕹️ Arrow Keys / WASD to Move</span>
-          <span>⏸️ Press P to Pause</span>
+      <div className="w-full flex items-start justify-center gap-4 max-w-7xl">
+        {/* Game Section */}
+        <div className="flex-shrink-0">
+          <GameHUD score={score} lives={lives} />
+          <div className="mt-2">
+            <PhaserGame onZoneTrigger={handleZoneTrigger} />
+          </div>
+          <div className="mt-4 text-center space-y-2">
+            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span>🕹️ Arrow Keys / WASD to Move</span>
+              <span>⏸️ Press P to Pause</span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+              Navigate SAI-MAN into the colored zones!
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground max-w-md mx-auto">
-          Navigate SAI-MAN into the colored zones to explore my portfolio!
-          <br />
-          <span className="text-accent">Green = Details</span> • 
-          <span className="text-secondary"> Magenta = Projects</span> • 
-          <span className="text-accent"> Cyan = Contact</span>
-        </p>
+
+        {/* Portfolio Panel */}
+        <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} />
       </div>
 
       <MobileControls onDirectionPress={handleMobileDirection} />
-      <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} />
+      
+      <Button
+        onClick={handleContactClick}
+        variant="outline"
+        size="sm"
+        className="fixed top-4 right-4 z-30 arcade-border"
+      >
+        Contact
+      </Button>
     </div>
   );
 };
