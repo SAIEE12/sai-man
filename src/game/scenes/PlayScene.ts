@@ -19,7 +19,7 @@ export default class PlayScene extends Phaser.Scene {
   private isPaused = false;
   private pauseText?: Phaser.GameObjects.Text;
   private playerSpeed = 150;
-  private ghostSpeed = 100;
+  private ghostSpeed = 160; // Slightly faster than player for tension
   private powerMode = false;
   private powerModeTimer?: Phaser.Time.TimerEvent;
   private playerDirection = { x: 0, y: 0 };
@@ -35,12 +35,20 @@ export default class PlayScene extends Phaser.Scene {
   private playerY = 0;
   private ghostMode: 'scatter' | 'chase' = 'scatter';
   private ghostModeTimer?: Phaser.Time.TimerEvent;
+  private eatSound?: Phaser.Sound.BaseSound;
+  private powerPelletSound?: Phaser.Sound.BaseSound;
+  private ghostEatenSound?: Phaser.Sound.BaseSound;
+  private deathSound?: Phaser.Sound.BaseSound;
+  private backgroundMusic?: Phaser.Sound.BaseSound;
 
   constructor() {
     super({ key: 'PlayScene' });
   }
 
   create() {
+    // Create sounds using Web Audio API (simple tones)
+    this.createSounds();
+
     // Create maze
     this.createMaze();
 
@@ -104,6 +112,32 @@ export default class PlayScene extends Phaser.Scene {
 
     // Emit initial game stats
     this.emitGameStats();
+
+    // Play background music
+    if (this.backgroundMusic) {
+      this.backgroundMusic.play();
+    }
+  }
+
+  private createSounds() {
+    // Create simple beep sounds using Web Audio API
+    // Pellet eat sound - short high beep
+    this.eatSound = this.sound.add('eat', { volume: 0.3 });
+    
+    // Power pellet sound - lower beep
+    this.powerPelletSound = this.sound.add('powerPellet', { volume: 0.4 });
+    
+    // Ghost eaten sound - ascending tone
+    this.ghostEatenSound = this.sound.add('ghostEaten', { volume: 0.5 });
+    
+    // Death sound - descending tone
+    this.deathSound = this.sound.add('death', { volume: 0.5 });
+    
+    // Background music - simple loop
+    this.backgroundMusic = this.sound.add('bgMusic', { 
+      volume: 0.2, 
+      loop: true 
+    });
   }
 
   private drawPlayer() {
@@ -274,65 +308,80 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   private createPortfolioZones() {
-    // Basic details zone (top-left, green)
+    // Basic details zone (top-left, green) with glow effect
     const basicDetailsZone = this.add.rectangle(
       this.tileSize * 5,
       this.tileSize * 3.5,
       this.tileSize * 4,
       this.tileSize * 3,
       0x00FF00,
-      0.2
+      0.3
     );
+    basicDetailsZone.setStrokeStyle(3, 0x00FF00, 1);
     (basicDetailsZone as any).zoneType = 'basic-details';
     this.portfolioZones.push(basicDetailsZone);
 
-    // Projects zone (top-right, magenta)
+    // Projects zone (top-right, magenta) with glow effect
     const projectsZone = this.add.rectangle(
       this.tileSize * 17,
       this.tileSize * 3.5,
       this.tileSize * 3,
       this.tileSize * 3,
       0xFF00FF,
-      0.2
+      0.3
     );
+    projectsZone.setStrokeStyle(3, 0xFF00FF, 1);
     (projectsZone as any).zoneType = 'projects';
     this.portfolioZones.push(projectsZone);
 
-    // Experience zone (center-left, blue)
+    // Experience zone (center-left, blue) with glow effect
     const experienceZone = this.add.rectangle(
       this.tileSize * 6.5,
       this.tileSize * 9.5,
       this.tileSize * 5,
       this.tileSize * 3,
       0x0000FF,
-      0.2
+      0.3
     );
+    experienceZone.setStrokeStyle(3, 0x0000FF, 1);
     (experienceZone as any).zoneType = 'experience';
     this.portfolioZones.push(experienceZone);
 
-    // Skills zone (center-right, yellow)
+    // Skills zone (center-right, yellow) with glow effect
     const skillsZone = this.add.rectangle(
       this.tileSize * 17,
       this.tileSize * 9.5,
       this.tileSize * 4,
       this.tileSize * 3,
       0xFFFF00,
-      0.2
+      0.3
     );
+    skillsZone.setStrokeStyle(3, 0xFFFF00, 1);
     (skillsZone as any).zoneType = 'skills';
     this.portfolioZones.push(skillsZone);
 
-    // Contact zone (bottom-center, cyan)
+    // Contact zone (bottom-center, cyan) with glow effect
     const contactZone = this.add.rectangle(
       this.tileSize * 12,
       this.tileSize * 11,
       this.tileSize * 6,
       this.tileSize * 2,
       0x00FFFF,
-      0.2
+      0.3
     );
+    contactZone.setStrokeStyle(3, 0x00FFFF, 1);
     (contactZone as any).zoneType = 'contact';
     this.portfolioZones.push(contactZone);
+
+    // Add glow animation to all zones
+    this.tweens.add({
+      targets: this.portfolioZones,
+      alpha: { from: 0.3, to: 0.6 },
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
   }
 
   private animateMouth() {
@@ -508,6 +557,9 @@ export default class PlayScene extends Phaser.Scene {
       if (distance < 20) {
         this.score += 10;
         this.emitGameStats();
+        if (this.eatSound) {
+          this.eatSound.play();
+        }
         pellet.destroy();
         return false;
       }
@@ -526,6 +578,9 @@ export default class PlayScene extends Phaser.Scene {
       if (distance < 20) {
         this.score += 50;
         this.emitGameStats();
+        if (this.powerPelletSound) {
+          this.powerPelletSound.play();
+        }
         this.activatePowerMode();
         pellet.destroy();
         return false;
@@ -547,6 +602,9 @@ export default class PlayScene extends Phaser.Scene {
           // Eat ghost
           this.score += 200;
           this.emitGameStats();
+          if (this.ghostEatenSound) {
+            this.ghostEatenSound.play();
+          }
           ghost.x = 9 * this.tileSize + this.tileSize / 2;
           ghost.y = 6 * this.tileSize + this.tileSize / 2;
           ghost.graphics.setPosition(ghost.x, ghost.y);
@@ -616,6 +674,10 @@ export default class PlayScene extends Phaser.Scene {
     this.lives--;
     this.emitGameStats();
     
+    if (this.deathSound) {
+      this.deathSound.play();
+    }
+    
     if (this.lives <= 0) {
       this.endGame();
     } else {
@@ -665,6 +727,11 @@ export default class PlayScene extends Phaser.Scene {
 
   private endGame() {
     this.gameOver = true;
+    
+    if (this.backgroundMusic) {
+      this.backgroundMusic.stop();
+    }
+    
     const text = this.add.text(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
@@ -679,8 +746,43 @@ export default class PlayScene extends Phaser.Scene {
     text.setOrigin(0.5);
 
     this.input.keyboard?.once('keydown-R', () => {
-      this.scene.restart();
+      this.restartGame();
     });
+  }
+
+  private restartGame() {
+    // Reset all game state
+    this.score = 0;
+    this.lives = 3;
+    this.gameOver = false;
+    this.powerMode = false;
+    this.ghostMode = 'scatter';
+    this.lastZoneTriggered = null;
+    
+    // Clear all existing game objects
+    this.pellets.forEach(p => p.destroy());
+    this.powerPellets.forEach(p => p.destroy());
+    this.ghosts.forEach(g => g.graphics.destroy());
+    this.walls.forEach(w => w.destroy());
+    this.portfolioZones.forEach(z => z.destroy());
+    
+    // Reset arrays
+    this.pellets = [];
+    this.powerPellets = [];
+    this.ghosts = [];
+    this.walls = [];
+    this.portfolioZones = [];
+    
+    // Stop timers
+    if (this.powerModeTimer) {
+      this.powerModeTimer.destroy();
+    }
+    if (this.ghostModeTimer) {
+      this.ghostModeTimer.destroy();
+    }
+    
+    // Restart the scene
+    this.scene.restart();
   }
 
   shutdown() {

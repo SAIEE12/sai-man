@@ -63,48 +63,46 @@ const MobileControls = ({ onDirectionPress }: MobileControlsProps) => {
   if (!isMobile) return null;
 
   return (
-    <div className="fixed bottom-8 right-8 z-40 grid grid-cols-3 gap-2 w-48 h-48">
-      <div className="col-start-2">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
+      <div className="relative w-36 h-36 sm:w-48 sm:h-48">
+        {/* Up */}
         <Button
           variant="outline"
           size="icon"
-          className="w-full h-full arcade-border bg-background/80 backdrop-blur"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-yellow-400 active:bg-yellow-500 rounded-lg flex items-center justify-center transition-colors touch-manipulation"
           onTouchStart={() => onDirectionPress('up')}
         >
-          <ChevronUp className="h-8 w-8 text-primary" />
+          <ChevronUp className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
         </Button>
-      </div>
-      
-      <div className="col-start-1 row-start-2">
+        
+        {/* Down */}
         <Button
           variant="outline"
           size="icon"
-          className="w-full h-full arcade-border bg-background/80 backdrop-blur"
-          onTouchStart={() => onDirectionPress('left')}
-        >
-          <ChevronLeft className="h-8 w-8 text-primary" />
-        </Button>
-      </div>
-
-      <div className="col-start-3 row-start-2">
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-full h-full arcade-border bg-background/80 backdrop-blur"
-          onTouchStart={() => onDirectionPress('right')}
-        >
-          <ChevronRight className="h-8 w-8 text-primary" />
-        </Button>
-      </div>
-
-      <div className="col-start-2 row-start-3">
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-full h-full arcade-border bg-background/80 backdrop-blur"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-yellow-400 active:bg-yellow-500 rounded-lg flex items-center justify-center transition-colors touch-manipulation"
           onTouchStart={() => onDirectionPress('down')}
         >
-          <ChevronDown className="h-8 w-8 text-primary" />
+          <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
+        </Button>
+        
+        {/* Left */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-yellow-400 active:bg-yellow-500 rounded-lg flex items-center justify-center transition-colors touch-manipulation"
+          onTouchStart={() => onDirectionPress('left')}
+        >
+          <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
+        </Button>
+        
+        {/* Right */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-yellow-400 active:bg-yellow-500 rounded-lg flex items-center justify-center transition-colors touch-manipulation"
+          onTouchStart={() => onDirectionPress('right')}
+        >
+          <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
         </Button>
       </div>
     </div>

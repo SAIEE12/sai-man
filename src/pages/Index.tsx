@@ -47,47 +47,31 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
       <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
-
-      <header className="mb-4 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-primary arcade-glow mb-2">
-          SAI-MAN
-        </h1>
-        <p className="text-lg md:text-xl text-muted-foreground">
-          Sai Manish Ananthula's Interactive Portfolio
-        </p>
-      </header>
-
-      <div className="w-full flex items-start justify-center gap-4 max-w-7xl">
+      
+      <div className="flex flex-col lg:flex-row min-h-screen w-full">
         {/* Game Section */}
-        <div className="flex-shrink-0">
-          <GameHUD score={score} lives={lives} />
-          <div className="mt-2">
-            <PhaserGame onZoneTrigger={handleZoneTrigger} />
-          </div>
-          <div className="mt-4 text-center space-y-2">
-            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-              <span>🕹️ Arrow Keys / WASD to Move</span>
-              <span>⏸️ Press P to Pause</span>
+        <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4">
+          <div className="w-full max-w-4xl">
+            <GameHUD score={score} lives={lives} />
+            <div className="relative w-full" style={{ aspectRatio: '20/13' }}>
+              <PhaserGame onZoneTrigger={handleZoneTrigger} />
             </div>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
-              Navigate SAI-MAN into the colored zones!
-            </p>
+            <MobileControls onDirectionPress={handleMobileDirection} />
           </div>
         </div>
 
-        {/* Portfolio Panel */}
+        {/* Portfolio Overlay */}
         <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} />
       </div>
 
-      <MobileControls onDirectionPress={handleMobileDirection} />
-      
+      {/* Contact Button */}
       <Button
         onClick={handleContactClick}
         variant="outline"
         size="sm"
-        className="fixed top-4 right-4 z-30 arcade-border"
+        className="fixed top-2 right-2 sm:top-4 sm:right-4 px-4 py-2 sm:px-6 sm:py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm sm:text-base rounded-lg shadow-lg transition-all z-50"
       >
         Contact
       </Button>

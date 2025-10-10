@@ -17,20 +17,22 @@ const PhaserGame = ({ onZoneTrigger }: PhaserGameProps) => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
+      parent: gameRef.current,
       width: 640,
       height: 416,
-      parent: gameRef.current,
-      backgroundColor: '#000000', // Black like original Pac-Man
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 640,
+        height: 416,
+      },
+      backgroundColor: '#000000',
       scene: [BootScene, PreloadScene, PlayScene],
       physics: {
         default: 'arcade',
         arcade: {
           debug: false,
         },
-      },
-      scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
       },
     };
 
