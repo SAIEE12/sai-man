@@ -4,12 +4,23 @@ import PortfolioOverlay from '@/components/PortfolioOverlay';
 import IntroModal from '@/components/IntroModal';
 import MobileControls from '@/components/MobileControls';
 import GameHUD from '@/components/GameHUD';
+import MusicToggle from '@/components/MusicToggle';
+import ZoneModal from '@/components/ZoneModal';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [pendingZone, setPendingZone] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setIsMobile(checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleGameStats = (event: Event) => {
@@ -23,11 +34,40 @@ const Index = () => {
   }, []);
 
   const handleZoneTrigger = (zone: string) => {
-    setActiveZone(zone);
+    if (isMobile) {
+      setPendingZone(zone);
+    } else {
+      setActiveZone(zone);
+    }
   };
 
   const handleCloseOverlay = () => {
     setActiveZone(null);
+    setPendingZone(null);
+  };
+
+  const handleOpenZoneDetails = () => {
+    if (pendingZone) {
+      setActiveZone(pendingZone);
+      setPendingZone(null);
+      setIsPaused(true);
+      window.dispatchEvent(new CustomEvent('pauseGame'));
+    }
+  };
+
+  const handleContinuePlaying = () => {
+    setPendingZone(null);
+  };
+
+  const handleMusicToggle = () => {
+    setIsMusicMuted(!isMusicMuted);
+    window.dispatchEvent(new CustomEvent('toggleMusic', { detail: { muted: !isMusicMuted } }));
+  };
+
+  const handlePauseToggle = () => {
+    const newPausedState = !isPaused;
+    setIsPaused(newPausedState);
+    window.dispatchEvent(new CustomEvent(newPausedState ? 'pauseGame' : 'resumeGame'));
   };
 
   const handleStartGame = () => {
@@ -50,6 +90,15 @@ const Index = () => {
     <div className="min-h-screen bg-black text-white overflow-hidden">
       <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
       
+      {/* Zone Modal for Mobile */}
+      {pendingZone && (
+        <ZoneModal
+          zoneName={pendingZone}
+          onOpen={handleOpenZoneDetails}
+          onContinue={handleContinuePlaying}
+        />
+      )}
+      
       <div className="flex flex-col lg:flex-row min-h-screen w-full">
         {/* Game Section */}
         <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4">
@@ -58,13 +107,25 @@ const Index = () => {
             <div className="relative w-full" style={{ aspectRatio: '20/13' }}>
               <PhaserGame onZoneTrigger={handleZoneTrigger} />
             </div>
-            <MobileControls onDirectionPress={handleMobileDirection} />
+            {isMobile && (
+              <div className="flex justify-center mt-4 gap-4">
+                <MusicToggle isMuted={isMusicMuted} onToggle={handleMusicToggle} isMobile />
+              </div>
+            )}
+            <MobileControls 
+              onDirectionPress={handleMobileDirection}
+              isPaused={isPaused}
+              onPauseToggle={handlePauseToggle}
+            />
           </div>
         </div>
 
         {/* Portfolio Overlay */}
         <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} />
       </div>
+
+      {/* Desktop Music Toggle */}
+      {!isMobile && <MusicToggle isMuted={isMusicMuted} onToggle={handleMusicToggle} />}
 
       {/* Contact Button */}
       <Button

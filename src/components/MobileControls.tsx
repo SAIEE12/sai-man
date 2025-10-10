@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface MobileControlsProps {
   onDirectionPress: (direction: 'up' | 'down' | 'left' | 'right') => void;
+  isPaused: boolean;
+  onPauseToggle: () => void;
 }
 
-const MobileControls = ({ onDirectionPress }: MobileControlsProps) => {
+const MobileControls = ({ onDirectionPress, isPaused, onPauseToggle }: MobileControlsProps) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
@@ -64,7 +66,7 @@ const MobileControls = ({ onDirectionPress }: MobileControlsProps) => {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
-      <div className="relative w-36 h-36 sm:w-48 sm:h-48">
+      <div className="relative w-40 h-40 sm:w-52 sm:h-52">
         {/* Up */}
         <Button
           variant="outline"
@@ -103,6 +105,20 @@ const MobileControls = ({ onDirectionPress }: MobileControlsProps) => {
           onTouchStart={() => onDirectionPress('right')}
         >
           <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
+        </Button>
+
+        {/* Center Pause/Play Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 bg-red-500 active:bg-red-600 rounded-full flex items-center justify-center transition-colors touch-manipulation shadow-lg"
+          onTouchStart={onPauseToggle}
+        >
+          {isPaused ? (
+            <Play className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="white" />
+          ) : (
+            <Pause className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="white" />
+          )}
         </Button>
       </div>
     </div>

@@ -81,8 +81,11 @@ export default class PlayScene extends Phaser.Scene {
       this.togglePause();
     });
 
-    // Listen for mobile controls
+    // Listen for mobile controls and music toggle
     window.addEventListener('mobileControl', this.handleMobileControl.bind(this) as EventListener);
+    window.addEventListener('toggleMusic', this.handleMusicToggle.bind(this) as EventListener);
+    window.addEventListener('pauseGame', this.handlePauseGame.bind(this) as EventListener);
+    window.addEventListener('resumeGame', this.handleResumeGame.bind(this) as EventListener);
 
     // Animate Pac-Man mouth
     this.time.addEvent({
@@ -117,6 +120,28 @@ export default class PlayScene extends Phaser.Scene {
     if (this.backgroundMusic) {
       this.backgroundMusic.play();
     }
+  }
+
+  private handleMusicToggle(event: Event) {
+    const customEvent = event as CustomEvent;
+    const muted = customEvent.detail.muted;
+    
+    if (muted) {
+      this.sound.pauseAll();
+    } else {
+      this.sound.resumeAll();
+      if (this.backgroundMusic && !this.backgroundMusic.isPlaying) {
+        this.backgroundMusic.play();
+      }
+    }
+  }
+
+  private handlePauseGame() {
+    this.isPaused = true;
+  }
+
+  private handleResumeGame() {
+    this.isPaused = false;
   }
 
   private createSounds() {
@@ -788,5 +813,8 @@ export default class PlayScene extends Phaser.Scene {
   shutdown() {
     // Clean up event listeners
     window.removeEventListener('mobileControl', this.handleMobileControl.bind(this) as EventListener);
+    window.removeEventListener('toggleMusic', this.handleMusicToggle.bind(this) as EventListener);
+    window.removeEventListener('pauseGame', this.handlePauseGame.bind(this) as EventListener);
+    window.removeEventListener('resumeGame', this.handleResumeGame.bind(this) as EventListener);
   }
 }
