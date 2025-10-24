@@ -736,18 +736,15 @@ export default class PlayScene extends Phaser.Scene {
 
   private winGame() {
     this.gameOver = true;
-    const text = this.add.text(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      'YOU WIN!\n\nFinal Score: ' + this.score,
-      {
-        fontSize: '48px',
-        color: '#FFD700',
-        fontFamily: 'Courier New',
-        align: 'center'
-      }
-    );
-    text.setOrigin(0.5);
+    
+    if (this.backgroundMusic) {
+      this.backgroundMusic.stop();
+    }
+
+    // Emit win event to React
+    window.dispatchEvent(new CustomEvent('gameWin', { 
+      detail: { score: this.score } 
+    }));
   }
 
   private endGame() {

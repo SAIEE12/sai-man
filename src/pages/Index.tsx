@@ -6,16 +6,22 @@ import MobileControls from '@/components/MobileControls';
 import GameHUD from '@/components/GameHUD';
 import MusicToggle from '@/components/MusicToggle';
 import ZoneModal from '@/components/ZoneModal';
+import VisitorCounter from '@/components/VisitorCounter';
+import WinModal from '@/components/WinModal';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
-  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [isMusicMuted, setIsMusicMuted] = useState(() => {
+    const saved = localStorage.getItem('saiman-music-muted');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [isPaused, setIsPaused] = useState(false);
   const [pendingZone, setPendingZone] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showWinModal, setShowWinModal] = useState(false);
 
   useEffect(() => {
     const checkMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -29,8 +35,18 @@ const Index = () => {
       setLives(customEvent.detail.lives);
     };
 
+    const handleGameWin = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setScore(customEvent.detail.score);
+      setShowWinModal(true);
+    };
+
     window.addEventListener('gameStats', handleGameStats);
-    return () => window.removeEventListener('gameStats', handleGameStats);
+    window.addEventListener('gameWin', handleGameWin);
+    return () => {
+      window.removeEventListener('gameStats', handleGameStats);
+      window.removeEventListener('gameWin', handleGameWin);
+    };
   }, []);
 
   const handleZoneTrigger = (zone: string) => {
@@ -98,6 +114,14 @@ const Index = () => {
           onContinue={handleContinuePlaying}
         />
       )}
+
+      {/* Win Modal */}
+      {showWinModal && (
+        <WinModal score={score} onClose={() => setShowWinModal(false)} />
+      )}
+
+      {/* Visitor Counter */}
+      <VisitorCounter />
       
       <div className="flex flex-col lg:flex-row min-h-screen w-full">
         {/* Game Section */}
