@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { Input } from './ui/input';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,8 +10,32 @@ interface WinModalProps {
 }
 
 const WinModal = ({ score, onClose }: WinModalProps) => {
-  const [answer, setAnswer] = useState('');
+  const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const { toast } = useToast();
+
+  // Random funny questions with emoji choices
+  const funnyQuestions = [
+    {
+      question: "If Manish were a bug, would you fix him or feature him? 😄",
+      options: ["🔧 Fix him!", "⭐ Feature him!", "🐛 Keep as is", "❓ Not sure"]
+    },
+    {
+      question: "Rate Manish's Pac-Man skills from 1 (noob) to 10 (pro). 🎮",
+      options: ["1️⃣ Noob", "5️⃣ Average", "8️⃣ Good", "🔟 Pro"]
+    },
+    {
+      question: "What's Manish's favorite debugging snack? 🍕",
+      options: ["🍕 Pizza", "☕ Coffee", "🍪 Cookies", "🧠 Brain food"]
+    },
+    {
+      question: "If Manish could code in any language (including alien), which would he choose? 👽",
+      options: ["🐍 Python", "👽 Alien++", "☕ Java", "🦀 Rust"]
+    }
+  ];
+
+  const [currentQuestion] = useState(() => 
+    funnyQuestions[Math.floor(Math.random() * funnyQuestions.length)]
+  );
 
   // Add global function to view answers in console
   useEffect(() => {
@@ -42,10 +65,10 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
     };
   }, []);
 
-  const handleSubmit = () => {
-    if (!answer.trim()) {
+  const handleSubmit = (answer: string) => {
+    if (!answer) {
       toast({
-        title: "Please enter an answer!",
+        title: "Please select an answer!",
         variant: "destructive"
       });
       return;
@@ -54,7 +77,8 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
     // Save answer to localStorage
     const answers = JSON.parse(localStorage.getItem('saiman-funny-answers') || '[]');
     answers.push({
-      answer: answer.trim(),
+      question: currentQuestion.question,
+      answer: answer,
       timestamp: new Date().toISOString(),
       score
     });
@@ -66,7 +90,12 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
     });
 
     console.log('✅ New answer recorded! Type "viewFunnyAnswers()" to see all responses.');
-    setAnswer('');
+    setSelectedAnswer(answer);
+    
+    // Auto close after 1.5 seconds
+    setTimeout(() => {
+      onClose();
+    }, 1500);
   };
 
   return (
@@ -88,24 +117,28 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
         
         <div className="my-6 p-4 bg-accent/50 rounded-lg">
           <p className="text-base text-foreground mb-4 font-medium">
-            🤔 Funny Question:
+            🤔 Quick Question:
           </p>
           <p className="text-sm text-foreground mb-4">
-            What do you think Manish's favorite debugging snack is?
+            {currentQuestion.question}
           </p>
-          <Input
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder="Type your answer..."
-            className="mb-3"
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          />
-          <Button
-            onClick={handleSubmit}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            Submit Answer
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            {currentQuestion.options.map((option, index) => (
+              <Button
+                key={index}
+                onClick={() => handleSubmit(option)}
+                variant={selectedAnswer === option ? "default" : "outline"}
+                className={`h-auto py-3 text-sm ${
+                  selectedAnswer === option 
+                    ? 'bg-primary hover:bg-primary/90' 
+                    : 'hover:bg-accent'
+                }`}
+                disabled={!!selectedAnswer}
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
         </div>
         
         <Button

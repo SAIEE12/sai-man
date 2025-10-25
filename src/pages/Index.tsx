@@ -95,7 +95,12 @@ const Index = () => {
   };
 
   const handleMobileDirection = (direction: 'up' | 'down' | 'left' | 'right') => {
-    window.dispatchEvent(new CustomEvent('mobileControl', { detail: { direction } }));
+    console.log('📱 Mobile direction pressed:', direction);
+    const event = new CustomEvent('mobileControl', { 
+      detail: { direction },
+      bubbles: true 
+    });
+    window.dispatchEvent(event);
   };
 
   const handleContactClick = () => {

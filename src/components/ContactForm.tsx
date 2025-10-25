@@ -10,23 +10,29 @@ const ContactForm = () => {
     email: '',
     message: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
+    
+    // Create mailto link as a no-backend solution
+    const subject = encodeURIComponent(`Portfolio Contact from ${formData.name}`);
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    );
+    const mailtoLink = `mailto:saimanishsai19189@gmail.com?subject=${subject}&body=${body}`;
+    
+    // Open default email client
+    window.location.href = mailtoLink;
+    
+    // Show success message
     toast({
-      title: "Message Sent!",
-      description: "Thanks for reaching out, I'll get back to you soon!",
+      title: "✅ Opening your email client...",
+      description: "Your default email app will open with the message pre-filled!",
     });
-
+    
+    // Clear form
     setFormData({ name: '', email: '', message: '' });
-    setIsSubmitting(false);
   };
 
   return (
@@ -74,10 +80,9 @@ const ContactForm = () => {
       </div>
       <Button
         type="submit"
-        disabled={isSubmitting}
         className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        {isSubmitting ? 'Sending...' : 'Send Message'}
+        Send Message
       </Button>
     </form>
   );
