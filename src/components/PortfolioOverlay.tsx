@@ -33,10 +33,8 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 arcade-glow mt-4"
               >
                 <a
-                  href="https://github.com/SAIEE12/sai-man/raw/main/Sai_Manish_Ananthula_Resume.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
+                  href="/Sai_Manish_Resume.docx"
+                  download="Sai_Manish_Resume.docx"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download Resume
