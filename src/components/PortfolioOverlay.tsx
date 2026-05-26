@@ -1,4 +1,4 @@
-import { X, Github, Linkedin, Mail, FileText, Download } from 'lucide-react';
+import { X, Github, Linkedin, Mail, FileText, Download, Eye } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import ContactForm from './ContactForm';
@@ -28,18 +28,34 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 Passionate about building real-world web applications with FastAPI, React, PostgreSQL, and Docker. 
                 Experienced in CI/CD pipelines, cloud deployment, and full-stack development.
               </p>
-              <Button
-                asChild
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 arcade-glow mt-4"
-              >
-                <a
-                  href="/Sai_Manish_Resume.docx"
-                  download="Sai_Manish_Resume.docx"
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full arcade-border hover:bg-accent"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Resume
-                </a>
-              </Button>
+                  <a
+                    href="/Sai_Manish_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 arcade-glow"
+                >
+                  <a
+                    href="/Sai_Manish_Resume.pdf"
+                    download="Sai_Manish_Resume.pdf"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </a>
+                </Button>
+              </div>
             </div>
           ),
         };
