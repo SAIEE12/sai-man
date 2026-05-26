@@ -7,9 +7,25 @@ interface GhostConfig {
   name: string;
 }
 
+interface Ghost {
+  graphics: Phaser.GameObjects.Graphics;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  color: number;
+  originalColor: number;
+  name: string;
+  scatterTarget: { x: number; y: number };
+}
+
+interface PortfolioZone extends Phaser.GameObjects.Rectangle {
+  zoneType?: string;
+}
+
 export default class PlayScene extends Phaser.Scene {
   private player?: Phaser.GameObjects.Graphics;
-  private ghosts: any[] = [];
+  private ghosts: Ghost[] = [];
   private pellets: Phaser.GameObjects.Arc[] = [];
   private powerPellets: Phaser.GameObjects.Arc[] = [];
   private walls: Phaser.GameObjects.Rectangle[] = [];
@@ -26,7 +42,7 @@ export default class PlayScene extends Phaser.Scene {
   private tileSize = 32;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasdKeys?: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
-  private portfolioZones: Phaser.GameObjects.Rectangle[] = [];
+  private portfolioZones: PortfolioZone[] = [];
   private currentZone: string | null = null;
   private mouthAngle = 0;
   private mouthDirection = 1;
@@ -341,9 +357,9 @@ export default class PlayScene extends Phaser.Scene {
       this.tileSize * 3,
       0x00FF00,
       0.3
-    );
+    ) as PortfolioZone;
     basicDetailsZone.setStrokeStyle(3, 0x00FF00, 1);
-    (basicDetailsZone as any).zoneType = 'basic-details';
+    basicDetailsZone.zoneType = 'basic-details';
     this.portfolioZones.push(basicDetailsZone);
 
     // Projects zone (top-right, magenta) with glow effect
@@ -354,9 +370,9 @@ export default class PlayScene extends Phaser.Scene {
       this.tileSize * 3,
       0xFF00FF,
       0.3
-    );
+    ) as PortfolioZone;
     projectsZone.setStrokeStyle(3, 0xFF00FF, 1);
-    (projectsZone as any).zoneType = 'projects';
+    projectsZone.zoneType = 'projects';
     this.portfolioZones.push(projectsZone);
 
     // Experience zone (center-left, blue) with glow effect
@@ -367,9 +383,9 @@ export default class PlayScene extends Phaser.Scene {
       this.tileSize * 3,
       0x0000FF,
       0.3
-    );
+    ) as PortfolioZone;
     experienceZone.setStrokeStyle(3, 0x0000FF, 1);
-    (experienceZone as any).zoneType = 'experience';
+    experienceZone.zoneType = 'experience';
     this.portfolioZones.push(experienceZone);
 
     // Skills zone (center-right, yellow) with glow effect
@@ -380,9 +396,9 @@ export default class PlayScene extends Phaser.Scene {
       this.tileSize * 3,
       0xFFFF00,
       0.3
-    );
+    ) as PortfolioZone;
     skillsZone.setStrokeStyle(3, 0xFFFF00, 1);
-    (skillsZone as any).zoneType = 'skills';
+    skillsZone.zoneType = 'skills';
     this.portfolioZones.push(skillsZone);
 
     // Contact zone (bottom-center, cyan) with glow effect
@@ -393,9 +409,9 @@ export default class PlayScene extends Phaser.Scene {
       this.tileSize * 2,
       0x00FFFF,
       0.3
-    );
+    ) as PortfolioZone;
     contactZone.setStrokeStyle(3, 0x00FFFF, 1);
-    (contactZone as any).zoneType = 'contact';
+    contactZone.zoneType = 'contact';
     this.portfolioZones.push(contactZone);
 
     // Add glow animation to all zones
@@ -442,7 +458,7 @@ export default class PlayScene extends Phaser.Scene {
             ghost.targetX = this.playerX + this.playerDirection.x * this.tileSize * 4;
             ghost.targetY = this.playerY + this.playerDirection.y * this.tileSize * 4;
             break;
-          case 'Inky': // Patrol
+          case 'Inky': { // Patrol
             const dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, this.playerX, this.playerY);
             if (dist < this.tileSize * 8) {
               ghost.targetX = this.playerX;
@@ -452,6 +468,7 @@ export default class PlayScene extends Phaser.Scene {
               ghost.targetY = ghost.scatterTarget.y;
             }
             break;
+          }
           case 'Clyde': // Random-ish
             if (Math.random() > 0.7) {
               ghost.targetX = this.playerX;
@@ -650,8 +667,8 @@ export default class PlayScene extends Phaser.Scene {
       );
       
       if (distance < 50) {
-        const zoneType = (zone as any).zoneType;
-        if (this.lastZoneTriggered !== zoneType) {
+        const zoneType = zone.zoneType;
+        if (zoneType && this.lastZoneTriggered !== zoneType) {
           this.lastZoneTriggered = zoneType;
           this.currentZone = zoneType;
           this.triggerPortfolioZone(zoneType);

@@ -43,7 +43,7 @@ export default class PreloadScene extends Phaser.Scene {
   }
 
   createAudioAssets() {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     
     // Create pellet eat sound (short beep)
     const eatBuffer = this.createBeep(audioContext, 880, 0.05);
