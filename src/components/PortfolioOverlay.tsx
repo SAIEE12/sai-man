@@ -35,7 +35,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   className="w-full arcade-border hover:bg-accent"
                 >
                   <a
-                    href="/Sai_Manish_Resume.pdf"
+                    href="/resume.html"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

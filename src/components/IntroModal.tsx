@@ -57,8 +57,9 @@ const IntroModal = ({ onStartGame, onViewResume }: IntroModalProps) => {
             className="w-full h-14 text-lg arcade-border hover:bg-accent"
           >
             <a
-              href="/Sai_Manish_Resume.pdf"
-              download="Sai_Manish_Resume.pdf"
+              href="/resume.html"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={handleViewResume}
             >
               <FileText className="mr-2 h-6 w-6" />
