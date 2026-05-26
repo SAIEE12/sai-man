@@ -11,6 +11,11 @@ interface PhaserGameProps {
 const PhaserGame = ({ onZoneTrigger }: PhaserGameProps) => {
   const gameRef = useRef<HTMLDivElement>(null);
   const phaserGameRef = useRef<Phaser.Game | null>(null);
+  const onZoneTriggerRef = useRef(onZoneTrigger);
+
+  useEffect(() => {
+    onZoneTriggerRef.current = onZoneTrigger;
+  }, [onZoneTrigger]);
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return;
@@ -41,7 +46,7 @@ const PhaserGame = ({ onZoneTrigger }: PhaserGameProps) => {
     // Listen for portfolio zone events
     const handlePortfolioZone = (event: Event) => {
       const customEvent = event as CustomEvent;
-      onZoneTrigger(customEvent.detail.zone);
+      onZoneTriggerRef.current(customEvent.detail.zone);
     };
 
     window.addEventListener('portfolioZone', handlePortfolioZone);

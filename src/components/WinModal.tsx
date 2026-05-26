@@ -4,6 +4,13 @@ import { Card } from './ui/card';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface SavedAnswer {
+  question: string;
+  answer: string;
+  timestamp: string;
+  score: number;
+}
+
 interface WinModalProps {
   score: number;
   onClose: () => void;
@@ -39,15 +46,15 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
 
   // Add global function to view answers in console
   useEffect(() => {
-    (window as any).viewFunnyAnswers = () => {
-      const answers = JSON.parse(localStorage.getItem('saiman-funny-answers') || '[]');
+    (window as unknown as { viewFunnyAnswers: () => void }).viewFunnyAnswers = () => {
+      const answers: SavedAnswer[] = JSON.parse(localStorage.getItem('saiman-funny-answers') || '[]');
       console.log('='.repeat(50));
       console.log('📝 FUNNY ANSWERS FROM VISITORS:');
       console.log('='.repeat(50));
       if (answers.length === 0) {
         console.log('No answers yet!');
       } else {
-        answers.forEach((item: any, index: number) => {
+        answers.forEach((item: SavedAnswer, index: number) => {
           console.log(`\n${index + 1}. Answer: "${item.answer}"`);
           console.log(`   Score: ${item.score}`);
           console.log(`   Date: ${new Date(item.timestamp).toLocaleString()}`);
@@ -61,7 +68,7 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
     console.log('💡 Tip: Type "viewFunnyAnswers()" in console to see all visitor responses!');
 
     return () => {
-      delete (window as any).viewFunnyAnswers;
+      delete (window as unknown as { viewFunnyAnswers?: () => void }).viewFunnyAnswers;
     };
   }, []);
 
