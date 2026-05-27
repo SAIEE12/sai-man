@@ -31,11 +31,10 @@ const KeyboardHint = () => {
     window.addEventListener('keydown', handleKeyDown);
 
     // 4. Sequential keyboard pulsing animation to simulate press
-    let keyPulseInterval: NodeJS.Timeout;
     const pulseSequence = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
     let index = 0;
     
-    keyPulseInterval = setInterval(() => {
+    const keyPulseInterval = setInterval(() => {
       setActiveKey(pulseSequence[index]);
       index = (index + 1) % pulseSequence.length;
     }, 800);

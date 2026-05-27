@@ -61,13 +61,13 @@ npm run build
 ## 👨‍💻 About Manish
 
 **Sai Manish Ananthula**  
-Full-Stack Developer | DevOps Intern @ BITSILICA
+Python Full Stack Developer | Software Engineer @ Bitsilica Pvt. Ltd.
 
-Passionate about building real-world web applications with FastAPI, React, PostgreSQL, and Docker.
+Results-driven Python Full Stack Developer with hands-on experience building scalable REST APIs, full-stack web applications, and backend systems using FastAPI, Flask, React.js, and PostgreSQL. Skilled in cloud deployments (AWS, DigitalOcean) and CI/CD pipelines (Jenkins, Docker).
 
 ### Connect
 
-- 📧 Email: saimanishsai19189@gmail.com
+- 📧 Email: saimanishmail@gmail.com
 - 💼 [LinkedIn](https://www.linkedin.com/in/sai-manish-ananthula)
 - 🐙 [GitHub](https://github.com/SAIEE12)
 - 📞 Phone: +91 9959110929

@@ -22,12 +22,16 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 Sai Manish Ananthula
               </h2>
               <p className="text-lg font-semibold text-accent">
-                Full-Stack Developer | DevOps Intern @ BITSILICA
+                Python Full Stack Developer
               </p>
-              <p className="text-foreground leading-relaxed">
-                Passionate about building real-world web applications with FastAPI, React, PostgreSQL, and Docker. 
-                Experienced in CI/CD pipelines, cloud deployment, and full-stack development.
+              <p className="text-foreground text-sm leading-relaxed">
+                Results-driven Python Full Stack Developer with hands-on experience building scalable REST APIs, full-stack web applications, and backend systems using FastAPI, Flask, React.js, and PostgreSQL. Skilled in CI/CD automation via Jenkins, containerization with Docker, and cloud deployments on AWS and DigitalOcean.
               </p>
+              <div className="mt-4 pt-4 border-t border-border space-y-2 text-sm">
+                <h3 className="font-bold text-primary arcade-glow mb-1">EDUCATION</h3>
+                <p className="text-accent font-semibold">B.Tech in Computer Science & Engineering</p>
+                <p className="text-muted-foreground text-xs">Vardhaman College of Engineering | CGPA: 7.2 | 2020 – 2024</p>
+              </div>
               <div className="grid grid-cols-2 gap-3 mt-4">
                 <Button
                   asChild
@@ -61,54 +65,61 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
         };
       case 'projects':
         return {
-          title: 'PROJECTS',
+          title: 'KEY PROJECTS',
           content: (
             <div className="space-y-3">
               <Card className="arcade-border p-4 bg-accent/5 hover:bg-accent/10 transition-colors">
-                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">TrackOn</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">Full-Stack Enterprise Platform</h3>
                 <p className="text-sm text-muted-foreground mb-2">
-                  FastAPI + React based project management app with real-time collaboration features
+                  Designed and built modular REST APIs with SQLAlchemy ORM, establishing clean data access layers. Containerized application stacks with Docker and configured Jenkins CI/CD pipelines.
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">React.js</span>
                   <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">FastAPI</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">React</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">SQLAlchemy</span>
                   <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">PostgreSQL</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Docker</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Jenkins</span>
                 </div>
               </Card>
 
               <Card className="arcade-border p-4 bg-accent/5 hover:bg-accent/10 transition-colors">
-                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">Sai-Man</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">RBAC & Secure Data Architecture</h3>
                 <p className="text-sm text-muted-foreground mb-2">
-                  This interactive Pac-Man style portfolio game you're playing right now!
+                  Built role-based access systems with Supabase authentication and fine-grained access control enforced through PostgreSQL Row Level Security (RLS) policies.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">React</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Phaser 3</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">TypeScript</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">React.js</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Supabase</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">PostgreSQL</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">RLS</span>
                 </div>
               </Card>
 
               <Card className="arcade-border p-4 bg-accent/5 hover:bg-accent/10 transition-colors">
-                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">Requirements Manager</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">Internal Tooling & Cloud Deployments</h3>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Full-stack requirements tracking system with advanced filtering and analytics
+                  Integrated FastAPI backend services with React.js frontends. Automated deployments via Jenkins CI/CD on AWS and DigitalOcean using MongoDB and SQLite.
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">React.js</span>
                   <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">FastAPI</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">PostgreSQL</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">TypeScript</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">MongoDB</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">AWS</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">DigitalOcean</span>
                 </div>
               </Card>
 
               <Card className="arcade-border p-4 bg-accent/5 hover:bg-accent/10 transition-colors">
-                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">Saarthi.AI</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 arcade-glow">REST API & Backend Services</h3>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Empathetic AI Voice Agent for mental health support and conversation
+                  Developed RESTful Flask backend APIs with structured JSON request/response handling and comprehensive input validation. Tested extensively using Postman.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">AI/ML</span>
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Voice</span>
                   <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Python</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Flask</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">REST APIs</span>
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Postman</span>
                 </div>
               </Card>
             </div>
@@ -120,33 +131,15 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
           content: (
             <div className="space-y-3">
               <Card className="arcade-border p-4 bg-accent/5">
-                <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">DevOps Intern</h3>
-                <p className="text-sm text-accent mb-2">Bitsilica • May 2025 – Present</p>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Automated CI/CD pipelines using Jenkins and Docker</li>
-                  <li>Managed infrastructure with Terraform on AWS</li>
-                  <li>Implemented Git workflows for team collaboration</li>
-                  <li>Reduced deployment time by 70% through automation</li>
-                </ul>
-              </Card>
-
-              <Card className="arcade-border p-4 bg-accent/5">
-                <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">SDE Intern</h3>
-                <p className="text-sm text-accent mb-2">Aubergine Design Works</p>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Built scalable APIs using FastAPI and PostgreSQL</li>
-                  <li>Managed frontend integration with React</li>
-                  <li>Collaborated in agile sprints with cross-functional teams</li>
-                </ul>
-              </Card>
-
-              <Card className="arcade-border p-4 bg-accent/5">
-                <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">Intern</h3>
-                <p className="text-sm text-accent mb-2">Rejolt EdTech</p>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Contributed to full-stack features using FastAPI and PostgreSQL</li>
-                  <li>Developed educational platform features</li>
-                  <li>Learned modern web development practices</li>
+                <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">Software Engineer</h3>
+                <p className="text-sm text-accent mb-2">Bitsilica Pvt. Ltd. • 2024 – Present</p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Architected object-oriented, modular REST APIs using FastAPI</li>
+                  <li>Built enterprise-grade full-stack web applications using React.js and PostgreSQL</li>
+                  <li>Implemented secure authentication, role-based access control (RBAC), and PostgreSQL RLS</li>
+                  <li>Containerized apps with Docker and set up automated Jenkins CI/CD workflows</li>
+                  <li>Deployed and managed production cloud configurations on AWS and DigitalOcean</li>
+                  <li>Troubleshot and debugged production logs and database queries</li>
                 </ul>
               </Card>
             </div>
@@ -160,7 +153,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Languages</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Python', 'JavaScript', 'TypeScript'].map(skill => (
+                  {['Python', 'JavaScript', 'TypeScript', 'Java', 'SQL'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
                       {skill}
                     </span>
@@ -169,9 +162,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Frameworks</h3>
+                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Backend & Frontend</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['FastAPI', 'React', 'Flask'].map(skill => (
+                  {['FastAPI', 'Flask', 'React.js', 'Node.js', 'HTML', 'CSS', 'Tailwind CSS'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
                       {skill}
                     </span>
@@ -180,9 +173,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">DevOps Tools</h3>
+                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Databases & DevOps</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Docker', 'Jenkins', 'Terraform', 'AWS', 'Git'].map(skill => (
+                  {['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Supabase', 'Docker', 'Jenkins', 'CI/CD', 'AWS', 'DigitalOcean'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
                       {skill}
                     </span>
@@ -191,9 +184,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Databases</h3>
+                <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Concepts & Tools</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['PostgreSQL', 'Neo4j', 'MongoDB'].map(skill => (
+                  {['SQLAlchemy', 'RLS', 'RBAC', 'Pytest', 'Postman', 'OOP', 'SOLID Principles', 'Git', 'DSA'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
                       {skill}
                     </span>
@@ -215,11 +208,11 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <div className="pt-4 border-t border-border space-y-2">
                 <h3 className="text-lg font-semibold mb-3 text-primary">Or contact me via:</h3>
                 <a
-                  href="mailto:saimanishsai19189@gmail.com"
+                  href="mailto:saimanishmail@gmail.com"
                   className="flex items-center gap-3 p-2 hover:text-primary transition-colors text-sm"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>saimanishsai19189@gmail.com</span>
+                  <span>saimanishmail@gmail.com</span>
                 </a>
                 <a
                   href="https://github.com/SAIEE12"
