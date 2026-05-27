@@ -1,5 +1,7 @@
 # Manish's Pac-Man Portfolio 🎮
 
+![Gameplay Demo](public/gameplay.webp)
+
 An interactive Pac-Man–style portfolio built using Phaser 3 and React.
 
 ## 🎯 Features
