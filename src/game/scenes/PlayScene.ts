@@ -17,6 +17,7 @@ interface Ghost {
   originalColor: number;
   name: string;
   scatterTarget: { x: number; y: number };
+  direction?: { x: number; y: number };
 }
 
 interface PortfolioZone extends Phaser.GameObjects.Rectangle {
@@ -571,19 +572,100 @@ export default class PlayScene extends Phaser.Scene {
 
     // Move ghosts
     this.ghosts.forEach(ghost => {
-      const angle = Math.atan2(
-        ghost.targetY - ghost.y,
-        ghost.targetX - ghost.x
-      );
-      
-      const speed = this.powerMode ? this.ghostSpeed * 0.5 : this.ghostSpeed;
-      const newGhostX = ghost.x + Math.cos(angle) * speed * this.game.loop.delta / 1000;
-      const newGhostY = ghost.y + Math.sin(angle) * speed * this.game.loop.delta / 1000;
-      
-      if (!this.checkWallCollision(newGhostX, newGhostY)) {
-        ghost.x = newGhostX;
-        ghost.y = newGhostY;
-        ghost.graphics.setPosition(newGhostX, newGhostY);
+      if (!ghost.direction) {
+        ghost.direction = { x: 0, y: -1 };
+      }
+
+      // Slightly lower active speed to make it fair and feel professional
+      const speed = this.powerMode ? this.ghostSpeed * 0.55 : this.ghostSpeed * 0.9;
+      const step = (speed * this.game.loop.delta) / 1000;
+
+      // Try to move in current direction
+      let nextX = ghost.x + ghost.direction.x * step;
+      let nextY = ghost.y + ghost.direction.y * step;
+
+      // Check if blocked by a wall in front
+      const isBlocked = this.checkWallCollision(nextX, nextY);
+
+      // We evaluate turning options either when blocked or when aligned with a tile center
+      const currentTileX = Math.floor(ghost.x / this.tileSize);
+      const currentTileY = Math.floor(ghost.y / this.tileSize);
+      const tileCenterX = currentTileX * this.tileSize + this.tileSize / 2;
+      const tileCenterY = currentTileY * this.tileSize + this.tileSize / 2;
+
+      // Check grid alignment proximity
+      const isAtCenter = Math.abs(ghost.x - tileCenterX) < step * 1.5 && Math.abs(ghost.y - tileCenterY) < step * 1.5;
+
+      if (isBlocked || isAtCenter) {
+        if (isAtCenter) {
+          ghost.x = tileCenterX;
+          ghost.y = tileCenterY;
+        }
+
+        const dirs = [
+          { x: 0, y: -1 }, // Up
+          { x: 0, y: 1 },  // Down
+          { x: -1, y: 0 }, // Left
+          { x: 1, y: 0 }   // Right
+        ];
+
+        let bestDir = ghost.direction;
+        let minDistance = Infinity;
+
+        dirs.forEach(dir => {
+          // Classic Pac-Man: do not reverse direction immediately unless completely blocked
+          if (!isBlocked && dir.x === -ghost.direction!.x && dir.y === -ghost.direction!.y) {
+            return;
+          }
+
+          // Check if this new direction has any wall collision
+          const testX = ghost.x + dir.x * (this.tileSize / 2 + 5);
+          const testY = ghost.y + dir.y * (this.tileSize / 2 + 5);
+
+          if (!this.checkWallCollision(testX, testY)) {
+            // Find direction that minimizes Euclidean distance to target
+            const nextTileCenterX = ghost.x + dir.x * this.tileSize;
+            const nextTileCenterY = ghost.y + dir.y * this.tileSize;
+            const dist = Phaser.Math.Distance.Between(
+              nextTileCenterX,
+              nextTileCenterY,
+              ghost.targetX,
+              ghost.targetY
+            );
+
+            if (dist < minDistance) {
+              minDistance = dist;
+              bestDir = dir;
+            }
+          }
+        });
+
+        ghost.direction = bestDir;
+        nextX = ghost.x + ghost.direction.x * step;
+        nextY = ghost.y + ghost.direction.y * step;
+      }
+
+      // Final movement check and application
+      if (!this.checkWallCollision(nextX, nextY)) {
+        ghost.x = nextX;
+        ghost.y = nextY;
+        ghost.graphics.setPosition(nextX, nextY);
+      } else {
+        // Fallback: If still blocked, try any valid open direction to prevent ever getting stuck
+        const dirs = [
+          { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
+        ];
+        for (const dir of dirs) {
+          const testX = ghost.x + dir.x * step;
+          const testY = ghost.y + dir.y * step;
+          if (!this.checkWallCollision(testX, testY)) {
+            ghost.direction = dir;
+            ghost.x = testX;
+            ghost.y = testY;
+            ghost.graphics.setPosition(testX, testY);
+            break;
+          }
+        }
       }
     });
 
