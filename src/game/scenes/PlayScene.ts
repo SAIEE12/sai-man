@@ -30,6 +30,7 @@ export default class PlayScene extends Phaser.Scene {
   private pellets: Phaser.GameObjects.Arc[] = [];
   private powerPellets: Phaser.GameObjects.Arc[] = [];
   private walls: Phaser.GameObjects.Rectangle[] = [];
+  private maze: number[][] = [];
   private score = 0;
   private lives = 3;
   private gameOver = false;
@@ -218,14 +219,14 @@ export default class PlayScene extends Phaser.Scene {
 
   private createMaze() {
     // Simple maze layout (1 = wall, 0 = empty)
-    const maze = [
+    this.maze = [
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
       [1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1],
       [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1],
       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
       [1,0,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1],
-      [1,0,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,0,1],
-      [1,1,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1],
+      [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1], // Opened indices 9 and 10
+      [1,1,1,1,0,1,1,1,0,0,0,0,1,1,1,0,1,1,1,1], // Opened indices 9 and 10
       [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
       [1,0,1,1,0,1,0,1,1,0,0,1,1,0,1,0,1,1,0,1],
       [1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1],
@@ -234,7 +235,7 @@ export default class PlayScene extends Phaser.Scene {
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     ];
 
-    maze.forEach((row, y) => {
+    this.maze.forEach((row, y) => {
       row.forEach((cell, x) => {
         if (cell === 1) {
           const wall = this.add.rectangle(
@@ -576,32 +577,25 @@ export default class PlayScene extends Phaser.Scene {
         ghost.direction = { x: 0, y: -1 };
       }
 
-      // Slightly lower active speed to make it fair and feel professional
-      const speed = this.powerMode ? this.ghostSpeed * 0.55 : this.ghostSpeed * 0.9;
+      const speed = this.powerMode ? this.ghostSpeed * 0.55 : this.ghostSpeed * 0.85;
       const step = (speed * this.game.loop.delta) / 1000;
 
-      // Try to move in current direction
-      let nextX = ghost.x + ghost.direction.x * step;
-      let nextY = ghost.y + ghost.direction.y * step;
+      // Find current tile
+      const tileX = Math.round((ghost.x - this.tileSize / 2) / this.tileSize);
+      const tileY = Math.round((ghost.y - this.tileSize / 2) / this.tileSize);
 
-      // Check if blocked by a wall in front
-      const isBlocked = this.checkWallCollision(nextX, nextY);
+      const tileCenterX = tileX * this.tileSize + this.tileSize / 2;
+      const tileCenterY = tileY * this.tileSize + this.tileSize / 2;
 
-      // We evaluate turning options either when blocked or when aligned with a tile center
-      const currentTileX = Math.floor(ghost.x / this.tileSize);
-      const currentTileY = Math.floor(ghost.y / this.tileSize);
-      const tileCenterX = currentTileX * this.tileSize + this.tileSize / 2;
-      const tileCenterY = currentTileY * this.tileSize + this.tileSize / 2;
-
-      // Check grid alignment proximity
+      // Check alignment with tile center
       const isAtCenter = Math.abs(ghost.x - tileCenterX) < step * 1.5 && Math.abs(ghost.y - tileCenterY) < step * 1.5;
 
-      if (isBlocked || isAtCenter) {
-        if (isAtCenter) {
-          ghost.x = tileCenterX;
-          ghost.y = tileCenterY;
-        }
+      if (isAtCenter) {
+        // Snap to center briefly
+        ghost.x = tileCenterX;
+        ghost.y = tileCenterY;
 
+        // Choose next grid cell direction
         const dirs = [
           { x: 0, y: -1 }, // Up
           { x: 0, y: 1 },  // Down
@@ -612,20 +606,25 @@ export default class PlayScene extends Phaser.Scene {
         let bestDir = ghost.direction;
         let minDistance = Infinity;
 
+        // Check which direction is open in the maze grid
         dirs.forEach(dir => {
-          // Classic Pac-Man: do not reverse direction immediately unless completely blocked
-          if (!isBlocked && dir.x === -ghost.direction!.x && dir.y === -ghost.direction!.y) {
-            return;
+          // Classic Pac-Man: do not reverse direction immediately unless blocked
+          if (dir.x === -ghost.direction!.x && dir.y === -ghost.direction!.y) {
+            // Check if we can keep going in current direction, if yes, don't reverse
+            const nextXVal = tileX + ghost.direction!.x;
+            const nextYVal = tileY + ghost.direction!.y;
+            if (!this.isGhostTileWall(nextXVal, nextYVal)) {
+              return;
+            }
           }
 
-          // Check if this new direction has any wall collision
-          const testX = ghost.x + dir.x * (this.tileSize / 2 + 5);
-          const testY = ghost.y + dir.y * (this.tileSize / 2 + 5);
+          const targetTileX = tileX + dir.x;
+          const targetTileY = tileY + dir.y;
 
-          if (!this.checkWallCollision(testX, testY)) {
-            // Find direction that minimizes Euclidean distance to target
-            const nextTileCenterX = ghost.x + dir.x * this.tileSize;
-            const nextTileCenterY = ghost.y + dir.y * this.tileSize;
+          if (!this.isGhostTileWall(targetTileX, targetTileY)) {
+            // Find direction that minimizes distance to the ghost's target tile
+            const nextTileCenterX = targetTileX * this.tileSize + this.tileSize / 2;
+            const nextTileCenterY = targetTileY * this.tileSize + this.tileSize / 2;
             const dist = Phaser.Math.Distance.Between(
               nextTileCenterX,
               nextTileCenterY,
@@ -641,28 +640,33 @@ export default class PlayScene extends Phaser.Scene {
         });
 
         ghost.direction = bestDir;
-        nextX = ghost.x + ghost.direction.x * step;
-        nextY = ghost.y + ghost.direction.y * step;
       }
 
-      // Final movement check and application
-      if (!this.checkWallCollision(nextX, nextY)) {
+      // Try to move in current direction
+      const nextX = ghost.x + ghost.direction.x * step;
+      const nextY = ghost.y + ghost.direction.y * step;
+
+      // Check if blocked by wall
+      const nextTileX = Math.round((nextX - this.tileSize / 2) / this.tileSize);
+      const nextTileY = Math.round((nextY - this.tileSize / 2) / this.tileSize);
+
+      if (!this.isGhostTileWall(nextTileX, nextTileY)) {
         ghost.x = nextX;
         ghost.y = nextY;
         ghost.graphics.setPosition(nextX, nextY);
       } else {
-        // Fallback: If still blocked, try any valid open direction to prevent ever getting stuck
+        // Fallback: Try any non-wall grid direction
         const dirs = [
           { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
         ];
         for (const dir of dirs) {
-          const testX = ghost.x + dir.x * step;
-          const testY = ghost.y + dir.y * step;
-          if (!this.checkWallCollision(testX, testY)) {
+          const testTileX = tileX + dir.x;
+          const testTileY = tileY + dir.y;
+          if (!this.isGhostTileWall(testTileX, testTileY)) {
             ghost.direction = dir;
-            ghost.x = testX;
-            ghost.y = testY;
-            ghost.graphics.setPosition(testX, testY);
+            ghost.x = ghost.x + dir.x * step;
+            ghost.y = ghost.y + dir.y * step;
+            ghost.graphics.setPosition(ghost.x, ghost.y);
             break;
           }
         }
@@ -772,6 +776,13 @@ export default class PlayScene extends Phaser.Scene {
       return Math.abs(wall.x - x) < this.tileSize / 2 + 10 &&
              Math.abs(wall.y - y) < this.tileSize / 2 + 10;
     });
+  }
+
+  private isGhostTileWall(tileX: number, tileY: number): boolean {
+    if (tileY < 0 || tileY >= this.maze.length || tileX < 0 || tileX >= this.maze[0].length) {
+      return true;
+    }
+    return this.maze[tileY][tileX] === 1;
   }
 
   private activatePowerMode() {
