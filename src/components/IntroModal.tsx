@@ -42,7 +42,8 @@ const IntroModal = ({ onStartGame, onViewResume }: IntroModalProps) => {
     let currentLineIndex = 0;
     const interval = setInterval(() => {
       if (currentLineIndex < bootLogs.length) {
-        setLines((prev) => [...prev, bootLogs[currentLineIndex]]);
+        const nextLine = bootLogs[currentLineIndex];
+        setLines((prev) => [...prev, nextLine]);
         currentLineIndex++;
         // Keep scrolling terminal
         terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -92,20 +93,23 @@ const IntroModal = ({ onStartGame, onViewResume }: IntroModalProps) => {
 
         {/* Terminal Log Output */}
         <div className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent">
-          {lines.map((line, idx) => (
-            <div key={idx} className="text-sm leading-relaxed tracking-wide flex items-start gap-3">
-              {line.type === 'ok' && (
-                <span className="text-green-400 font-bold flex-shrink-0">[  OK  ]</span>
-              )}
-              {line.type === 'warn' && (
-                <span className="text-yellow-500 font-bold flex-shrink-0">[ WARN ]</span>
-              )}
-              {line.type === 'info' && (
-                <span className="text-cyan-400 font-bold flex-shrink-0">[ INFO ]</span>
-              )}
-              <span className="text-gray-300">{line.text}</span>
-            </div>
-          ))}
+          {lines.map((line, idx) => {
+            if (!line) return null;
+            return (
+              <div key={idx} className="text-sm leading-relaxed tracking-wide flex items-start gap-3">
+                {line.type === 'ok' && (
+                  <span className="text-green-400 font-bold flex-shrink-0">[  OK  ]</span>
+                )}
+                {line.type === 'warn' && (
+                  <span className="text-yellow-500 font-bold flex-shrink-0">[ WARN ]</span>
+                )}
+                {line.type === 'info' && (
+                  <span className="text-cyan-400 font-bold flex-shrink-0">[ INFO ]</span>
+                )}
+                <span className="text-gray-300">{line.text}</span>
+              </div>
+            );
+          })}
 
           {/* Welcome and Login Prompts */}
           {bootFinished && (
