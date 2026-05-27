@@ -336,13 +336,14 @@ export default class PlayScene extends Phaser.Scene {
           Math.abs(wall.x - worldX) < 5 && Math.abs(wall.y - worldY) < 5
         );
         
-        if (!hasWall && Math.random() > 0.3) {
-          // Power pellets at corners
+        if (!hasWall) {
+          // Power pellets always spawn at specified locations
           if ((x === 1 && y === 1) || (x === 18 && y === 1) || 
-              (x === 1 && y === 11) || (x === 18 && y === 11)) {
+              (x === 1 && y === 11) || (x === 18 && y === 11) ||
+              (x === 9 && y === 7)) {
             const powerPellet = this.add.circle(worldX, worldY, 8, 0xFFFFFF);
             this.powerPellets.push(powerPellet);
-          } else {
+          } else if (Math.random() > 0.3) {
             const pellet = this.add.circle(worldX, worldY, 3, 0xFFD700);
             this.pellets.push(pellet);
           }
