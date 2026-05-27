@@ -11,6 +11,11 @@ import WinModal from '@/components/WinModal';
 import { Button } from '@/components/ui/button';
 import KeyboardHint from '@/components/KeyboardHint';
 
+// DevOps & Terminal Additions
+import TerminalOverlay from '@/components/TerminalOverlay';
+import LogStreamHUD from '@/components/LogStreamHUD';
+import PipelineHUD from '@/components/PipelineHUD';
+
 const Index = () => {
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -27,9 +32,37 @@ const Index = () => {
     return !!localStorage.getItem('saiman-visited');
   });
 
+  // DevOps & Recruiter Modes
+  const [mode, setMode] = useState<'devops' | 'recruiter'>(() => {
+    return (localStorage.getItem('saiman-mode') as 'devops' | 'recruiter') || 'devops';
+  });
+  const [terminalOpen, setTerminalOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('saiman-mode', mode);
+  }, [mode]);
+
   useEffect(() => {
     const checkMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     setIsMobile(checkMobile);
+  }, []);
+
+  // Global key listener for terminal toggle (T)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Do not open if user is filling form inputs or text areas
+      if (
+        e.target instanceof HTMLInputElement || 
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+      if (e.key === 't' || e.key === 'T') {
+        setTerminalOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
   useEffect(() => {
@@ -114,7 +147,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen bg-black text-white overflow-hidden font-sans">
       <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
       
       {/* Zone Modal for Mobile */}
@@ -157,7 +190,7 @@ const Index = () => {
         </div>
 
         {/* Portfolio Overlay */}
-        <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} />
+        <PortfolioOverlay zone={activeZone} onClose={handleCloseOverlay} mode={mode} />
       </div>
 
       {/* Desktop Music Toggle */}
@@ -168,10 +201,38 @@ const Index = () => {
         onClick={handleContactClick}
         variant="outline"
         size="sm"
-        className="fixed top-2 left-20 sm:top-4 sm:left-24 px-4 py-2 sm:px-6 sm:py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm sm:text-base rounded-lg shadow-lg transition-all z-50"
+        className="fixed top-2 left-20 sm:top-4 sm:left-24 px-4 py-2 sm:px-6 sm:py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm sm:text-base rounded-lg shadow-lg transition-all z-50 font-mono"
       >
         Contact
       </Button>
+
+      {/* Mode Toggle Button */}
+      <Button
+        onClick={() => setMode(prev => prev === 'devops' ? 'recruiter' : 'devops')}
+        variant="outline"
+        size="sm"
+        className={`fixed top-2 left-44 sm:top-4 sm:left-52 px-4 py-2 sm:px-6 sm:py-2 ${
+          mode === 'devops' 
+            ? 'bg-cyan-500 hover:bg-cyan-600 shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
+            : 'bg-green-500 hover:bg-green-600 shadow-[0_0_15px_rgba(34,197,94,0.4)]'
+        } text-white text-sm sm:text-base rounded-lg transition-all z-50 font-mono`}
+      >
+        {mode === 'devops' ? 'Mode: DevOps' : 'Mode: Recruiter'}
+      </Button>
+
+      {/* Interactive Command Terminal */}
+      <TerminalOverlay 
+        isOpen={terminalOpen} 
+        onClose={() => setTerminalOpen(false)} 
+        mode={mode} 
+        onModeChange={setMode} 
+      />
+
+      {/* Real-time Game Log Stream HUD */}
+      <LogStreamHUD />
+
+      {/* Simulated Server Deployment Telemetry HUD */}
+      <PipelineHUD />
     </div>
   );
 };
