@@ -164,14 +164,16 @@ const Index = () => {
       {!isMobile && <MusicToggle isMuted={isMusicMuted} onToggle={handleMusicToggle} />}
 
       {/* Contact Button */}
-      <Button
-        onClick={handleContactClick}
-        variant="outline"
-        size="sm"
-        className="fixed top-2 right-2 sm:top-4 sm:right-4 px-4 py-2 sm:px-6 sm:py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm sm:text-base rounded-lg shadow-lg transition-all z-50"
-      >
-        Contact
-      </Button>
+      {!activeZone && (
+        <Button
+          onClick={handleContactClick}
+          variant="outline"
+          size="sm"
+          className="fixed top-2 right-2 sm:top-4 sm:right-4 px-4 py-2 sm:px-6 sm:py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-sm sm:text-base rounded-lg shadow-lg transition-all z-50"
+        >
+          Contact
+        </Button>
+      )}
     </div>
   );
 };

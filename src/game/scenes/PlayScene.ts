@@ -38,7 +38,7 @@ export default class PlayScene extends Phaser.Scene {
   private isPaused = false;
   private pauseText?: Phaser.GameObjects.Text;
   private playerSpeed = 150;
-  private ghostSpeed = 160; // Slightly faster than player for tension
+  private ghostSpeed = 120; // Decreased from 160 to make the game fairer and enjoyable
   private powerMode = false;
   private powerModeTimer?: Phaser.Time.TimerEvent;
   private playerDirection = { x: 0, y: 0 };
