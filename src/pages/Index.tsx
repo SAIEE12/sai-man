@@ -9,6 +9,7 @@ import ZoneModal from '@/components/ZoneModal';
 import VisitorCounter from '@/components/VisitorCounter';
 import WinModal from '@/components/WinModal';
 import { Button } from '@/components/ui/button';
+import KeyboardHint from '@/components/KeyboardHint';
 
 const Index = () => {
   const [activeZone, setActiveZone] = useState<string | null>(null);
@@ -22,6 +23,9 @@ const Index = () => {
   const [pendingZone, setPendingZone] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
+  const [isIntroDismissed, setIsIntroDismissed] = useState(() => {
+    return !!localStorage.getItem('saiman-visited');
+  });
 
   useEffect(() => {
     const checkMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -87,10 +91,12 @@ const Index = () => {
   };
 
   const handleStartGame = () => {
+    setIsIntroDismissed(true);
     // Game starts automatically
   };
 
   const handleViewResume = () => {
+    setIsIntroDismissed(true);
     setActiveZone('basic-details');
   };
 
@@ -135,6 +141,7 @@ const Index = () => {
             <GameHUD score={score} lives={lives} />
             <div className="relative w-full" style={{ aspectRatio: '20/13' }}>
               <PhaserGame onZoneTrigger={handleZoneTrigger} />
+              {!isMobile && isIntroDismissed && <KeyboardHint />}
             </div>
             {isMobile && (
               <div className="flex justify-center mt-4 gap-4">
