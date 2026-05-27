@@ -22,7 +22,7 @@ const MusicToggle = ({ isMuted, onToggle, isMobile = false }: MusicToggleProps) 
       className={`${
         isMobile
           ? 'w-12 h-12 sm:w-14 sm:h-14'
-          : 'fixed top-2 right-20 sm:top-4 sm:right-24'
+          : 'fixed top-2 left-2 sm:top-4 sm:left-4'
       } bg-primary/80 hover:bg-primary text-primary-foreground rounded-lg shadow-lg transition-all z-50 flex items-center justify-center`}
       aria-label={isMuted ? 'Unmute sound' : 'Mute sound'}
       title={isMuted ? 'Unmute sound' : 'Mute sound'}
