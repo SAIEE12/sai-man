@@ -38,8 +38,11 @@ const IntroModal = ({ onStartGame, onViewResume }: IntroModalProps) => {
           <h1 className="text-5xl font-bold text-primary arcade-glow mb-4">
             SAI-MAN
           </h1>
-          <p className="text-xl text-foreground leading-relaxed">
+          <p className="text-xl text-foreground leading-relaxed mb-4">
             🎮 If you want to know about <span className="text-primary font-bold">Sai Manish</span>, let's play a game!
+          </p>
+          <p className="text-sm text-muted-foreground border-t border-border/40 pt-4 px-2 italic max-w-sm mx-auto leading-relaxed">
+            "Full-stack dev building scalable APIs, React apps & DevOps pipelines at Bitsilica."
           </p>
         </div>
 
