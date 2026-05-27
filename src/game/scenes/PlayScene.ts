@@ -105,6 +105,7 @@ export default class PlayScene extends Phaser.Scene {
     window.addEventListener('toggleMusic', this.handleMusicToggle.bind(this) as EventListener);
     window.addEventListener('pauseGame', this.handlePauseGame.bind(this) as EventListener);
     window.addEventListener('resumeGame', this.handleResumeGame.bind(this) as EventListener);
+    window.addEventListener('restartGame', () => this.restartGame());
 
     // Animate Pac-Man mouth
     this.time.addEvent({
@@ -258,10 +259,10 @@ export default class PlayScene extends Phaser.Scene {
 
   private createGhosts() {
     const ghostConfigs: GhostConfig[] = [
-      { color: 0xFF0000, startX: 9, startY: 5, name: 'Blinky' },
-      { color: 0xFFB8FF, startX: 8, startY: 6, name: 'Pinky' },
-      { color: 0x00FFFF, startX: 10, startY: 6, name: 'Inky' },
-      { color: 0xFFB852, startX: 11, startY: 5, name: 'Clyde' },
+      { color: 0xFF0000, startX: 9, startY: 5, name: 'FastAPI' },
+      { color: 0xFFB8FF, startX: 8, startY: 6, name: 'React' },
+      { color: 0x00FFFF, startX: 10, startY: 6, name: 'Docker' },
+      { color: 0xFFB852, startX: 11, startY: 5, name: 'Jenkins' },
     ];
 
     ghostConfigs.forEach(config => {
@@ -321,10 +322,10 @@ export default class PlayScene extends Phaser.Scene {
 
   private getScatterTarget(name: string): { x: number, y: number } {
     switch (name) {
-      case 'Blinky': return { x: 18 * this.tileSize, y: 1 * this.tileSize };
-      case 'Pinky': return { x: 1 * this.tileSize, y: 1 * this.tileSize };
-      case 'Inky': return { x: 18 * this.tileSize, y: 11 * this.tileSize };
-      case 'Clyde': return { x: 1 * this.tileSize, y: 11 * this.tileSize };
+      case 'FastAPI': return { x: 18 * this.tileSize, y: 1 * this.tileSize };
+      case 'React': return { x: 1 * this.tileSize, y: 1 * this.tileSize };
+      case 'Docker': return { x: 18 * this.tileSize, y: 11 * this.tileSize };
+      case 'Jenkins': return { x: 1 * this.tileSize, y: 11 * this.tileSize };
       default: return { x: 10 * this.tileSize, y: 6 * this.tileSize };
     }
   }
@@ -422,6 +423,26 @@ export default class PlayScene extends Phaser.Scene {
     contactZone.zoneType = 'contact';
     this.portfolioZones.push(contactZone);
 
+    // Add floating zone labels
+    const zoneLabels: { zone: PortfolioZone; label: string }[] = [
+      { zone: basicDetailsZone, label: '[ ABOUT ]' },
+      { zone: projectsZone, label: '[ PROJECTS ]' },
+      { zone: experienceZone, label: '[ EXPERIENCE ]' },
+      { zone: skillsZone, label: '[ SKILLS ]' },
+      { zone: contactZone, label: '[ CONTACT ]' },
+    ];
+
+    zoneLabels.forEach(({ zone, label }) => {
+      const text = this.add.text(zone.x, zone.y - this.tileSize * 1.2, label, {
+        fontSize: '9px',
+        color: '#ffffff',
+        fontFamily: 'Courier New',
+        align: 'center',
+      });
+      text.setOrigin(0.5);
+      text.setAlpha(0.8);
+    });
+
     // Add glow animation to all zones
     this.tweens.add({
       targets: this.portfolioZones,
@@ -458,15 +479,15 @@ export default class PlayScene extends Phaser.Scene {
       } else {
         // Chase player with personality
         switch (ghost.name) {
-          case 'Blinky': // Direct chase
+          case 'FastAPI': // Direct chase
             ghost.targetX = this.playerX;
             ghost.targetY = this.playerY;
             break;
-          case 'Pinky': // Ambush ahead
+          case 'React': // Ambush ahead
             ghost.targetX = this.playerX + this.playerDirection.x * this.tileSize * 4;
             ghost.targetY = this.playerY + this.playerDirection.y * this.tileSize * 4;
             break;
-          case 'Inky': { // Patrol
+          case 'Docker': { // Patrol when close
             const dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, this.playerX, this.playerY);
             if (dist < this.tileSize * 8) {
               ghost.targetX = this.playerX;
@@ -477,7 +498,7 @@ export default class PlayScene extends Phaser.Scene {
             }
             break;
           }
-          case 'Clyde': // Random-ish
+          case 'Jenkins': // Random-ish
             if (Math.random() > 0.7) {
               ghost.targetX = this.playerX;
               ghost.targetY = this.playerY;
@@ -882,20 +903,13 @@ export default class PlayScene extends Phaser.Scene {
     if (this.backgroundMusic) {
       this.backgroundMusic.stop();
     }
-    
-    const text = this.add.text(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      'GAME OVER\n\nScore: ' + this.score + '\n\nPress R to Restart',
-      {
-        fontSize: '48px',
-        color: '#FF0000',
-        fontFamily: 'Courier New',
-        align: 'center'
-      }
-    );
-    text.setOrigin(0.5);
 
+    // Emit to React — GameOverModal will handle display and restart
+    window.dispatchEvent(new CustomEvent('gameOver', {
+      detail: { score: this.score }
+    }));
+
+    // Still listen for R key as fallback
     this.input.keyboard?.once('keydown-R', () => {
       this.restartGame();
     });

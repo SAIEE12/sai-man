@@ -8,6 +8,7 @@ import MusicToggle from '@/components/MusicToggle';
 import ZoneModal from '@/components/ZoneModal';
 import VisitorCounter from '@/components/VisitorCounter';
 import WinModal from '@/components/WinModal';
+import GameOverModal from '@/components/GameOverModal';
 import { Button } from '@/components/ui/button';
 import KeyboardHint from '@/components/KeyboardHint';
 
@@ -28,6 +29,7 @@ const Index = () => {
   const [pendingZone, setPendingZone] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
+  const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [isIntroDismissed, setIsIntroDismissed] = useState(() => {
     return !!localStorage.getItem('saiman-visited');
   });
@@ -78,11 +80,19 @@ const Index = () => {
       setShowWinModal(true);
     };
 
+    const handleGameOver = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setScore(customEvent.detail.score);
+      setShowGameOverModal(true);
+    };
+
     window.addEventListener('gameStats', handleGameStats);
     window.addEventListener('gameWin', handleGameWin);
+    window.addEventListener('gameOver', handleGameOver);
     return () => {
       window.removeEventListener('gameStats', handleGameStats);
       window.removeEventListener('gameWin', handleGameWin);
+      window.removeEventListener('gameOver', handleGameOver);
     };
   }, []);
 
@@ -166,6 +176,18 @@ const Index = () => {
       {/* Win Modal */}
       {showWinModal && (
         <WinModal score={score} onClose={() => setShowWinModal(false)} />
+      )}
+
+      {/* Game Over Modal */}
+      {showGameOverModal && (
+        <GameOverModal
+          score={score}
+          onRestart={() => {
+            setShowGameOverModal(false);
+            setScore(0);
+            setLives(3);
+          }}
+        />
       )}
 
       {/* Visitor Counter */}
