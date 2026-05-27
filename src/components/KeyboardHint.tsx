@@ -6,48 +6,50 @@ const KeyboardHint = () => {
   const [fadeOut, setFadeOut] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
+  // Effect 1: Auto-fade after 6 seconds
   useEffect(() => {
-    // 1. Automatic fade out after 6 seconds
-    const timer = setTimeout(() => {
-      setFadeOut(true);
-    }, 6000);
+    const timer = setTimeout(() => setFadeOut(true), 6000);
+    return () => clearTimeout(timer);
+  }, []);
 
-    // 2. Clear after fade out animation
-    let clearTimer: NodeJS.Timeout;
-    if (fadeOut) {
-      clearTimer = setTimeout(() => {
-        setVisible(false);
-      }, 600);
-    }
+  // Effect 2: Remove from DOM after fade animation completes
+  useEffect(() => {
+    if (!fadeOut) return;
+    const timer = setTimeout(() => setVisible(false), 600);
+    return () => clearTimeout(timer);
+  }, [fadeOut]);
 
-    // 3. Listen to keyboard press to immediately hide hints
+  // Effect 3: Immediately hide on arrow/WASD press
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const keys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
       if (keys.includes(e.key.toLowerCase())) {
         setFadeOut(true);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-    // 4. Sequential keyboard pulsing animation to simulate press
-    const pulseSequence = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
+  // Effect 4: Sequential key pulse animation
+  useEffect(() => {
+    const sequence = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
     let index = 0;
-    
-    const keyPulseInterval = setInterval(() => {
-      setActiveKey(pulseSequence[index]);
-      index = (index + 1) % pulseSequence.length;
+    const interval = setInterval(() => {
+      setActiveKey(sequence[index]);
+      index = (index + 1) % sequence.length;
     }, 800);
-
-    return () => {
-      clearTimeout(timer);
-      if (clearTimer) clearTimeout(clearTimer);
-      clearInterval(keyPulseInterval);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [fadeOut]);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!visible) return null;
+
+  const keyClass = (key: string) =>
+    `flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
+      activeKey === key
+        ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]'
+        : 'bg-black/80 text-primary'
+    }`;
 
   return (
     <div
@@ -69,43 +71,18 @@ const KeyboardHint = () => {
         <h3 className="text-xl font-bold text-primary mb-5 arcade-glow tracking-wider">
           HOW TO PLAY
         </h3>
-        
+
         <div className="flex gap-12 items-center">
           {/* WASD Column */}
           <div className="flex flex-col items-center">
             <p className="text-xs text-muted-foreground mb-3 font-semibold tracking-wider">WASD KEYS</p>
             <div className="grid grid-cols-3 gap-1 w-28">
               <div></div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'UP' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                W
-              </div>
+              <div className={keyClass('UP')}>W</div>
               <div></div>
-              
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'LEFT' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                A
-              </div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'DOWN' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                S
-              </div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'RIGHT' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                D
-              </div>
+              <div className={keyClass('LEFT')}>A</div>
+              <div className={keyClass('DOWN')}>S</div>
+              <div className={keyClass('RIGHT')}>D</div>
             </div>
           </div>
 
@@ -116,43 +93,25 @@ const KeyboardHint = () => {
             <p className="text-xs text-muted-foreground mb-3 font-semibold tracking-wider">ARROW KEYS</p>
             <div className="grid grid-cols-3 gap-1 w-28">
               <div></div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'UP' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                <ChevronUp className="w-4 h-4" />
-              </div>
+              <div className={keyClass('UP')}><ChevronUp className="w-4 h-4" /></div>
               <div></div>
-              
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'LEFT' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'DOWN' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                <ChevronDown className="w-4 h-4" />
-              </div>
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded border border-primary/50 text-xs font-bold transition-all duration-200 ${
-                  activeKey === 'RIGHT' ? 'bg-primary text-black scale-95 shadow-[0_0_10px_#eab308]' : 'bg-black/80 text-primary'
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </div>
+              <div className={keyClass('LEFT')}><ChevronLeft className="w-4 h-4" /></div>
+              <div className={keyClass('DOWN')}><ChevronDown className="w-4 h-4" /></div>
+              <div className={keyClass('RIGHT')}><ChevronRight className="w-4 h-4" /></div>
             </div>
           </div>
         </div>
 
-        <p className="text-xs text-primary/80 mt-6 animate-pulse tracking-wider">
-          PRESS ANY KEY TO START
-        </p>
+        <div className="mt-5 space-y-1 text-center">
+          <p className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-primary font-bold">T</span> — Terminal &nbsp;|&nbsp;
+            <span className="text-primary font-bold">P</span> — Pause &nbsp;|&nbsp;
+            <span className="text-primary font-bold">R</span> — Restart
+          </p>
+          <p className="text-xs text-primary/80 mt-2 animate-pulse tracking-wider">
+            PRESS ANY KEY TO START
+          </p>
+        </div>
       </div>
     </div>
   );
