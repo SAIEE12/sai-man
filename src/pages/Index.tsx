@@ -125,11 +125,13 @@ const Index = () => {
 
   const handleStartGame = () => {
     setIsIntroDismissed(true);
+    localStorage.setItem('saiman-visited', 'true');
     // Game starts automatically
   };
 
   const handleViewResume = () => {
     setIsIntroDismissed(true);
+    localStorage.setItem('saiman-visited', 'true');
     setActiveZone('basic-details');
   };
 
@@ -148,7 +150,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden font-sans">
-      <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
+      {!isIntroDismissed && (
+        <IntroModal onStartGame={handleStartGame} onViewResume={handleViewResume} />
+      )}
       
       {/* Zone Modal for Mobile */}
       {pendingZone && (
