@@ -18,6 +18,7 @@ interface Ghost {
   name: string;
   scatterTarget: { x: number; y: number };
   direction?: { x: number; y: number };
+  lastDecisionTile?: { x: number; y: number };
 }
 
 interface PortfolioZone extends Phaser.GameObjects.Rectangle {
@@ -587,13 +588,15 @@ export default class PlayScene extends Phaser.Scene {
       const tileCenterX = tileX * this.tileSize + this.tileSize / 2;
       const tileCenterY = tileY * this.tileSize + this.tileSize / 2;
 
-      // Check alignment with tile center
+      // Check if alignment with tile center
       const isAtCenter = Math.abs(ghost.x - tileCenterX) < step * 1.5 && Math.abs(ghost.y - tileCenterY) < step * 1.5;
+      const hasMadeDecision = ghost.lastDecisionTile && ghost.lastDecisionTile.x === tileX && ghost.lastDecisionTile.y === tileY;
 
-      if (isAtCenter) {
+      if (isAtCenter && !hasMadeDecision) {
         // Snap to center briefly
         ghost.x = tileCenterX;
         ghost.y = tileCenterY;
+        ghost.lastDecisionTile = { x: tileX, y: tileY };
 
         // Choose next grid cell direction
         const dirs = [
@@ -832,6 +835,8 @@ export default class PlayScene extends Phaser.Scene {
         ];
         ghost.x = configs[i].x * this.tileSize + this.tileSize / 2;
         ghost.y = configs[i].y * this.tileSize + this.tileSize / 2;
+        ghost.direction = undefined;
+        ghost.lastDecisionTile = undefined;
         ghost.graphics.setPosition(ghost.x, ghost.y);
       });
     }
