@@ -119,6 +119,7 @@ export default class PlayScene extends Phaser.Scene {
       delay: 7000,
       callback: () => {
         this.ghostMode = this.ghostMode === 'scatter' ? 'chase' : 'scatter';
+        this.logGameEvent('EVENT', `Ghost AI mode toggled to: ${this.ghostMode.toUpperCase()}`);
       },
       callbackScope: this,
       loop: true
@@ -139,6 +140,7 @@ export default class PlayScene extends Phaser.Scene {
     if (this.backgroundMusic) {
       this.backgroundMusic.play();
     }
+    this.logGameEvent('INFO', 'Game systems initialized and running.');
   }
 
   private handleMusicToggle(event: Event) {
@@ -147,8 +149,10 @@ export default class PlayScene extends Phaser.Scene {
     
     if (muted) {
       this.sound.pauseAll();
+      this.logGameEvent('INFO', 'Audio output muted by client');
     } else {
       this.sound.resumeAll();
+      this.logGameEvent('INFO', 'Audio output resumed');
       if (this.backgroundMusic && !this.backgroundMusic.isPlaying) {
         this.backgroundMusic.play();
       }
@@ -689,6 +693,9 @@ export default class PlayScene extends Phaser.Scene {
       if (distance < 20) {
         this.score += 10;
         this.emitGameStats();
+        if (this.score % 100 === 0) {
+          this.logGameEvent('INFO', `Gold pellets gathered. Current score: ${this.score}`);
+        }
         if (this.eatSound) {
           this.eatSound.play();
         }
@@ -713,6 +720,7 @@ export default class PlayScene extends Phaser.Scene {
         if (this.powerPelletSound) {
           this.powerPelletSound.play();
         }
+        this.logGameEvent('EVENT', 'Vulnerability protocol: Power pellet consumed!');
         this.activatePowerMode();
         pellet.destroy();
         return false;
@@ -734,6 +742,7 @@ export default class PlayScene extends Phaser.Scene {
           // Eat ghost
           this.score += 200;
           this.emitGameStats();
+          this.logGameEvent('EVENT', `Ghost entity ${ghost.name} captured and recycled! Score +200.`);
           if (this.ghostEatenSound) {
             this.ghostEatenSound.play();
           }
@@ -759,6 +768,7 @@ export default class PlayScene extends Phaser.Scene {
       if (distance < 50) {
         const zoneType = zone.zoneType;
         if (zoneType && this.lastZoneTriggered !== zoneType) {
+          this.logGameEvent('EVENT', `Triggered technical zone: ${zoneType.toUpperCase()}`);
           this.lastZoneTriggered = zoneType;
           this.currentZone = zoneType;
           this.triggerPortfolioZone(zoneType);
@@ -812,6 +822,7 @@ export default class PlayScene extends Phaser.Scene {
   private loseLife() {
     this.lives--;
     this.emitGameStats();
+    this.logGameEvent('WARN', `Collision detected! Life lost. Remaining lives: ${this.lives}`);
     
     if (this.deathSound) {
       this.deathSound.play();
@@ -852,6 +863,7 @@ export default class PlayScene extends Phaser.Scene {
 
   private winGame() {
     this.gameOver = true;
+    this.logGameEvent('EVENT', `SUCCESS: Maze fully compiled! Victory achieved. Score: ${this.score}`);
     
     if (this.backgroundMusic) {
       this.backgroundMusic.stop();
@@ -865,6 +877,7 @@ export default class PlayScene extends Phaser.Scene {
 
   private endGame() {
     this.gameOver = true;
+    this.logGameEvent('WARN', 'Critical Error: System crash. Player terminated. Game Over.');
     
     if (this.backgroundMusic) {
       this.backgroundMusic.stop();
@@ -921,6 +934,16 @@ export default class PlayScene extends Phaser.Scene {
     
     // Restart the scene
     this.scene.restart();
+  }
+
+  private logGameEvent(level: 'INFO' | 'WARN' | 'EVENT', message: string) {
+    window.dispatchEvent(new CustomEvent('gameLog', {
+      detail: { 
+        level, 
+        message, 
+        timestamp: new Date().toLocaleTimeString() 
+      }
+    }));
   }
 
   shutdown() {

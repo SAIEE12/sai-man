@@ -3,16 +3,26 @@ import { X, Github, Linkedin, Mail, Download, Eye } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import ContactForm from './ContactForm';
+import TooltipText from './TooltipText';
+import { recruiterTranslationMap } from '../data/devopsData';
 
 interface PortfolioOverlayProps {
   zone: string | null;
   onClose: () => void;
+  mode: 'devops' | 'recruiter';
 }
 
-const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
+const PortfolioOverlay = ({ zone, onClose, mode }: PortfolioOverlayProps) => {
   const [expandedContribution, setExpandedContribution] = useState<number | null>(null);
 
   if (!zone) return null;
+
+  const displaySkill = (skill: string) => {
+    if (mode === 'recruiter' && recruiterTranslationMap[skill]) {
+      return recruiterTranslationMap[skill];
+    }
+    return skill;
+  };
 
   const getContent = () => {
     switch (zone) {
@@ -25,10 +35,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 Sai Manish Ananthula
               </h2>
               <p className="text-lg font-semibold text-accent">
-                Python Full Stack Developer
+                {displaySkill('Python Full Stack Developer')}
               </p>
               <p className="text-foreground text-xs leading-relaxed text-justify">
-                Results-driven Python Full Stack Developer with hands-on experience building scalable REST APIs, full-stack web applications, and production-grade backend systems using FastAPI, Flask, React.js, and PostgreSQL. Skilled in OOP backend architecture, SQLAlchemy ORM design, authentication and RBAC implementation, and cloud deployments on AWS and DigitalOcean. Proven track record of debugging and stabilising production systems across frontend, backend, and database layers. Adept at CI/CD automation via Jenkins, containerisation with Docker, and delivering clean, maintainable code following SOLID principles.
+                <TooltipText 
+                  text="Results-driven Python Full Stack Developer with hands-on experience building scalable REST APIs, full-stack web applications, and production-grade backend systems using FastAPI, Flask, React.js, and PostgreSQL. Skilled in OOP backend architecture, SQLAlchemy ORM design, authentication and RBAC implementation, and cloud deployments on AWS and DigitalOcean. Proven track record of debugging and stabilising production systems across frontend, backend, and database layers. Adept at CI/CD automation via Jenkins, containerisation with Docker, and delivering clean, maintainable code following SOLID principles." 
+                  mode={mode} 
+                />
               </p>
               
               <div className="mt-2 pt-2 border-t border-border space-y-1 text-sm">
@@ -89,11 +102,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="text-[10px] px-2 py-0.5 bg-yellow-500/20 text-yellow-500 border border-yellow-500/40 rounded font-mono font-bold">Featured</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed text-justify">
-                  An interactive Pac-Man style portfolio built with Phaser 3 and React 18. Play the game to explore my experience, projects, skills, and contact info.
+                  <TooltipText text="An interactive Pac-Man style portfolio built with Phaser 3 and React 18. Play the game to explore my experience, projects, skills, and contact info." mode={mode} />
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-3">
-                  {['Phaser 3', 'React 18', 'TypeScript', 'Vite', 'Tailwind CSS'].map(t => (
-                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">{t}</span>
+                  {['Phaser 3', 'React.js', 'TypeScript', 'Vite'].map(t => (
+                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">
+                      {displaySkill(t)}
+                    </span>
                   ))}
                 </div>
                 <div className="flex gap-3 text-[11px] font-mono">
@@ -113,11 +128,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/40 rounded font-mono font-bold">Production</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed text-justify">
-                  Enterprise-grade web platform with modular REST APIs, role-based access control, and automated CI/CD deployment pipeline.
+                  <TooltipText text="Enterprise-grade web platform with modular REST APIs, role-based access control, and automated CI/CD deployment pipeline." mode={mode} />
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {['React.js', 'TypeScript', 'FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Docker', 'Jenkins'].map(t => (
-                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">{t}</span>
+                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">
+                      {displaySkill(t)}
+                    </span>
                   ))}
                 </div>
               </Card>
@@ -129,11 +146,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/40 rounded font-mono font-bold">Production</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed text-justify">
-                  Multi-tenant application with Supabase authentication, PostgreSQL Row Level Security policies, and complete audit trail for entity lifecycle events.
+                  <TooltipText text="Multi-tenant application with Supabase authentication, PostgreSQL Row Level Security policies, and complete audit trail for entity lifecycle events." mode={mode} />
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {['React.js', 'TypeScript', 'Supabase', 'PostgreSQL', 'RLS'].map(t => (
-                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">{t}</span>
+                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">
+                      {displaySkill(t)}
+                    </span>
                   ))}
                 </div>
               </Card>
@@ -145,11 +164,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/40 rounded font-mono font-bold">Production</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed text-justify">
-                  Internal tooling platform integrating FastAPI services with React frontends, multi-database persistence, and Jenkins-automated deployments on AWS and DigitalOcean.
+                  <TooltipText text="Internal tooling platform integrating FastAPI services with React frontends, multi-database persistence, and Jenkins-automated deployments on AWS and DigitalOcean." mode={mode} />
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {['React.js', 'FastAPI', 'MongoDB', 'SQLite', 'Docker', 'Jenkins', 'AWS', 'DigitalOcean'].map(t => (
-                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">{t}</span>
+                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">
+                      {displaySkill(t)}
+                    </span>
                   ))}
                 </div>
               </Card>
@@ -161,11 +182,13 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/40 rounded font-mono font-bold">Production</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed text-justify">
-                  Collection of RESTful Flask APIs with structured request/response handling, modular domain logic, and thorough Postman test coverage.
+                  <TooltipText text="Collection of RESTful Flask APIs with structured request/response handling, modular domain logic, and thorough Postman test coverage." mode={mode} />
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {['Python', 'Flask', 'REST APIs', 'Postman'].map(t => (
-                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">{t}</span>
+                    <span key={t} className="px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] rounded font-mono">
+                      {displaySkill(t)}
+                    </span>
                   ))}
                 </div>
               </Card>
@@ -180,23 +203,25 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <Card className="arcade-border p-4 bg-accent/5">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">Software Engineer</h3>
+                    <h3 className="text-xl font-bold text-primary mb-1 arcade-glow">
+                      {displaySkill('Python Full Stack Developer')}
+                    </h3>
                     <p className="text-xs text-accent font-semibold">Bitsilica Pvt. Ltd. • Hyderabad, India</p>
                   </div>
                   <span className="text-[11px] px-2 py-0.5 bg-primary/20 text-primary border border-primary/40 rounded-full font-mono font-bold">2024 – Pres.</span>
                 </div>
                 
                 <h4 className="font-bold text-primary text-xs mt-3 mb-1.5 uppercase tracking-wider">Responsibilities</h4>
-                <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside leading-relaxed text-justify">
-                  <li>Architected and developed object-oriented, modular REST APIs using FastAPI with clean separation of concerns, enabling scalable and maintainable backend services.</li>
-                  <li>Built full-stack web applications using React.js, TypeScript, FastAPI, SQLAlchemy ORM, and PostgreSQL supporting enterprise workflows.</li>
-                  <li>Designed and implemented secure authentication systems, RBAC, and backend validation mechanisms to enforce data security policies.</li>
-                  <li>Engineered optimised relational database schemas and managed SQLAlchemy ORM integrations, improving query efficiency and data integrity across production systems.</li>
-                  <li>Performed root-cause analysis, log inspection, and production troubleshooting across frontend, backend, database, and cloud environments.</li>
-                  <li>Developed cron-based automation utilities and backend operational workflows, reducing manual intervention for recurring business processes.</li>
-                  <li>Containerised applications using Docker and deployed on AWS and DigitalOcean; integrated Jenkins CI/CD pipelines for automated deployment workflows.</li>
-                  <li>Implemented Supabase authentication, PostgreSQL storage, and Row Level Security (RLS) policies for granular, policy-driven data access in multi-tenant applications.</li>
-                  <li>Conducted thorough API testing and debugging using Postman and Pytest, ensuring correctness and performance of backend services in pre-production environments.</li>
+                <ul className="text-[11px] text-muted-foreground space-y-2 list-disc list-inside leading-relaxed text-justify">
+                  <li><TooltipText text="Architected and developed object-oriented, modular REST APIs using FastAPI with clean separation of concerns, enabling scalable and maintainable backend services." mode={mode} /></li>
+                  <li><TooltipText text="Built full-stack web applications using React.js, TypeScript, FastAPI, SQLAlchemy ORM, and PostgreSQL supporting enterprise workflows." mode={mode} /></li>
+                  <li><TooltipText text="Designed and implemented secure authentication systems, RBAC, and backend validation mechanisms to enforce data security policies." mode={mode} /></li>
+                  <li><TooltipText text="Engineered optimised relational database schemas and managed SQLAlchemy ORM integrations, improving query efficiency and data integrity across production systems." mode={mode} /></li>
+                  <li><TooltipText text="Performed root-cause analysis, log inspection, and production troubleshooting across frontend, backend, database, and cloud environments." mode={mode} /></li>
+                  <li><TooltipText text="Developed cron-based automation utilities and backend operational workflows, reducing manual intervention for recurring business processes." mode={mode} /></li>
+                  <li><TooltipText text="Containerised applications using Docker and deployed on AWS and DigitalOcean; integrated Jenkins CI/CD pipelines for automated deployment workflows." mode={mode} /></li>
+                  <li><TooltipText text="Implemented Supabase authentication, PostgreSQL storage, and Row Level Security (RLS) policies for granular, policy-driven data access in multi-tenant applications." mode={mode} /></li>
+                  <li><TooltipText text="Conducted thorough API testing and debugging using Postman and Pytest, ensuring correctness and performance of backend services in pre-production environments." mode={mode} /></li>
                   <li>Collaborated via Git-based workflows, peer code reviews, and Agile sprint planning to deliver features on schedule.</li>
                 </ul>
               </Card>
@@ -244,6 +269,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                     }
                   ].map((contrib, i) => {
                     const isExpanded = expandedContribution === i;
+                    const techDisplay = contrib.tech.split(' · ').map(displaySkill).join(' · ');
                     return (
                       <Card 
                         key={i} 
@@ -254,12 +280,14 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                           <h5 className="font-bold text-accent text-xs">{contrib.title}</h5>
                           <span className="text-primary text-xs font-mono font-bold">{isExpanded ? '[-]' : '[+]'}</span>
                         </div>
-                        <p className="text-[10px] text-primary/70 mt-1 font-mono">{contrib.tech}</p>
+                        <p className="text-[10px] text-primary/70 mt-1 font-mono">{techDisplay}</p>
                         
                         {isExpanded && (
                           <ul className="mt-2 text-[10px] text-muted-foreground list-disc list-inside space-y-1 border-t border-border/30 pt-2 leading-relaxed text-justify animate-in fade-in duration-200">
                             {contrib.bullets.map((b, idx) => (
-                              <li key={idx}>{b}</li>
+                              <li key={idx}>
+                                <TooltipText text={b} mode={mode} />
+                              </li>
                             ))}
                           </ul>
                         )}
@@ -279,9 +307,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Backend</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['FastAPI', 'Flask', 'Node.js', 'Python'].map(skill => (
+                  {['FastAPI', 'Flask', 'Python'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -292,7 +320,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 <div className="flex flex-wrap gap-2">
                   {['React.js', 'TypeScript', 'Tailwind CSS'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -303,7 +331,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 <div className="flex flex-wrap gap-2">
                   {['PostgreSQL', 'MongoDB', 'SQLite', 'Supabase'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -314,7 +342,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                 <div className="flex flex-wrap gap-2">
                   {['Docker', 'Jenkins', 'AWS', 'DigitalOcean', 'Nginx'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -323,9 +351,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Auth & ORM</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['SQLAlchemy', 'JWT', 'RBAC', 'RLS', 'Supabase Auth'].map(skill => (
+                  {['SQLAlchemy', 'RBAC', 'RLS'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -334,9 +362,9 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-primary arcade-glow">Testing</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Pytest', 'Postman', 'REST API Design'].map(skill => (
+                  {['Postman', 'REST APIs'].map(skill => (
                     <span key={skill} className="px-3 py-1.5 bg-primary/20 text-primary rounded-md text-sm font-medium arcade-border">
-                      {skill}
+                      {displaySkill(skill)}
                     </span>
                   ))}
                 </div>
@@ -373,7 +401,7 @@ const PortfolioOverlay = ({ zone, onClose }: PortfolioOverlayProps) => {
                   <span className="flex items-center justify-center w-5 h-5 text-accent font-bold">📍</span>
                   <span>Hyderabad, India</span>
                 </div>
-
+                
                 <a
                   href="https://github.com/SAIEE12"
                   target="_blank"
