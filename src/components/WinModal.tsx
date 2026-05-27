@@ -149,6 +149,25 @@ const WinModal = ({ score, onClose }: WinModalProps) => {
         </div>
         
         <Button
+          onClick={() => {
+            if (navigator.share) {
+              navigator.share({
+                title: 'SAI-MAN Portfolio',
+                text: `I just scored ${score} exploring Sai Manish's interactive Pac-Man portfolio! 🎮`,
+                url: 'https://saimanish.vercel.app'
+              }).catch(() => {/* silently ignore if user cancels */});
+            } else {
+              navigator.clipboard.writeText(
+                `I scored ${score} on Sai Manish's portfolio game! 🎮 https://saimanish.vercel.app`
+              );
+            }
+          }}
+          variant="outline"
+          className="w-full arcade-border text-cyan-400 border-cyan-500/50 hover:bg-cyan-500/10 font-mono"
+        >
+          🎮 Share Score
+        </Button>
+        <Button
           onClick={onClose}
           variant="outline"
           className="w-full arcade-border"
