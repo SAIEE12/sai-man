@@ -1,77 +1,119 @@
-# Manish's Pac-Man Portfolio 🎮
+# SAI-MAN — Interactive Portfolio
 
-![Gameplay Demo](public/gameplay.webp)
+> **Sai Manish Ananthula** · Python Full Stack Developer · [saimanish.vercel.app](https://saimanish.vercel.app)
 
-An interactive Pac-Man–style portfolio built using Phaser 3 and React.
+An interactive **Pac-Man-style portfolio game** built with Phaser 3 + React. Navigate the maze, collect pellets, and explore my skills, experience, and projects — all while dodging `FastAPI`, `React`, `Docker`, and `Jenkins` ghosts.
 
-## 🎯 Features
+---
 
-- **Explore zones** to know more about Manish (Projects, Experience, Skills, Contact)
-- **Play using keyboard** (Arrow keys or WASD) or **touch controls** on mobile
-- **Toggle music** and view funny interactions after winning
-- **Contact Manish** directly from the game
-- **Visitor counter** to track profile visits
-- **Fully responsive** for desktop and mobile devices
+## 📁 Project Structure
 
-## 🚀 Tech Stack
+```
+sai-man/
+├── frontend/          # React + Phaser 3 + TypeScript + Vite
+│   ├── src/
+│   │   ├── components/    # UI components (HUDs, modals, overlays)
+│   │   ├── data/          # Portfolio content & DevOps data maps
+│   │   ├── game/          # Phaser scenes & game logic
+│   │   ├── hooks/         # Custom React hooks
+│   │   └── pages/         # Index page (root orchestrator)
+│   ├── public/            # Static assets (favicon, sounds, images)
+│   ├── index.html
+│   └── package.json
+│
+├── backend/           # FastAPI + Python
+│   ├── app/
+│   │   ├── main.py        # FastAPI app, CORS, router registration
+│   │   ├── routers/       # API route handlers
+│   │   │   └── contact.py # POST /api/v1/contact
+│   │   ├── schemas/       # Pydantic request/response models
+│   │   └── models/        # DB models (SQLAlchemy — future)
+│   ├── requirements.txt
+│   ├── .env.example       # Copy to .env and fill credentials
+│   └── start.sh           # Quick dev server launcher
+│
+├── Makefile           # Convenience commands (make dev-frontend, etc.)
+├── .gitignore
+└── README.md
+```
 
-- **Phaser 3** - Game engine for 2D gameplay
-- **React 18** - UI framework and overlay system
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Styling and arcade theme
+---
 
-## 🎮 How to Play
+## 🚀 Getting Started
 
-1. Use **Arrow keys** or **WASD** to move Sai-Man
-2. Collect pellets and avoid ghosts
-3. Enter colored zones to explore Manish's portfolio:
-   - 🟢 **Green** → Basic Details & Resume
-   - 🟣 **Magenta** → Projects
-   - 🔵 **Cyan** → Contact
-   - 🟡 **Yellow** → Experience
-   - 🔴 **Red** → Skills
-4. Eat power pellets to turn ghosts blue and chase them!
-5. Press **P** to pause, **R** to restart after game over
+### Prerequisites
 
-## 📦 Installation & Setup
+- Node.js ≥ 20
+- Python ≥ 3.11
+
+### Frontend (Vite dev server on port 8080)
 
 ```bash
-# Clone the repository
-git clone https://github.com/SAIEE12/sai-man.git
-
-# Navigate to project directory
-cd sai-man
-
-# Install dependencies
+cd frontend
 npm install
-
-# Start development server
 npm run dev
 ```
 
-The game will be available at `http://localhost:8080`
-
-## 🏗️ Build for Production
+### Backend (FastAPI on port 8000)
 
 ```bash
-npm run build
+cd backend
+cp .env.example .env    # fill in your SMTP credentials
+bash start.sh
 ```
+
+**API Docs:** http://localhost:8000/docs
+
+### Or use the Makefile
+
+```bash
+make install        # install all dependencies
+make dev-frontend   # start React/Phaser game
+make dev-backend    # start FastAPI server
+make build          # production build
+```
+
+---
+
+## 🎮 How to Play
+
+| Key | Action |
+|---|---|
+| `↑↓←→` / `WASD` | Move Pac-Man |
+| `T` | Open DevOps terminal |
+| `P` | Pause / Resume |
+| `R` | Restart game |
+| `ESC` | Close overlay / skip intro |
+
+Navigate into the coloured zones to open portfolio sections. Collect all pellets to win!
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- **Phaser 3** — game engine
+- **React 18 + TypeScript** — UI layer & overlays
+- **Vite** — build tooling
+- **Tailwind CSS + shadcn/ui** — design system
+
+### Backend
+- **FastAPI** — REST API framework
+- **Pydantic v2** — data validation & schemas
+- **Uvicorn** — ASGI server
+- **Python 3.11+**
+
+---
 
 ## 👨‍💻 About Manish
 
-**Sai Manish Ananthula**  
-Python Full Stack Developer | Software Engineer @ Bitsilica Pvt. Ltd.
+**Sai Manish Ananthula** — Python Full Stack Developer · Software Engineer @ Bitsilica Pvt. Ltd.
 
-Results-driven Python Full Stack Developer with hands-on experience building scalable REST APIs, full-stack web applications, and backend systems using FastAPI, Flask, React.js, and PostgreSQL. Skilled in cloud deployments (AWS, DigitalOcean) and CI/CD pipelines (Jenkins, Docker).
-
-### Connect
-
-- 📧 Email: saimanishmail@gmail.com
+- 📧 [saimanishmail@gmail.com](mailto:saimanishmail@gmail.com)
 - 💼 [LinkedIn](https://www.linkedin.com/in/sai-manish-ananthula)
 - 🐙 [GitHub](https://github.com/SAIEE12)
-- 📞 Phone: +91 9959110929
+- 📞 +91 9959110929
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
+MIT License
