@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, GitBranch } from 'lucide-react';
 
-const PipelineHUD: React.FC = () => {
+interface PipelineHUDProps {
+  isOverlayOpen?: boolean;
+}
+
+const PipelineHUD: React.FC<PipelineHUDProps> = ({ isOverlayOpen = false }) => {
   const [activeUsers, setActiveUsers] = useState(3);
 
   // Simulate subtle updates to visitor telemetry
@@ -18,7 +22,9 @@ const PipelineHUD: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed top-4 right-4 z-40 hidden md:flex flex-col w-56 bg-black/85 border border-cyan-500/30 rounded-xl p-3 shadow-[0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md font-mono text-[11px] leading-relaxed">
+    <div className={`fixed top-4 transition-all duration-300 z-40 hidden md:flex flex-col w-56 bg-black/85 border border-cyan-500/30 rounded-xl p-3 shadow-[0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md font-mono text-[11px] leading-relaxed ${
+      isOverlayOpen ? 'right-[404px]' : 'right-4'
+    }`}>
       <div className="flex justify-between items-center border-b border-cyan-500/20 pb-1.5 mb-2">
         <div className="flex items-center gap-1 text-cyan-400 font-bold tracking-wider">
           <GitBranch className="w-3.5 h-3.5 text-cyan-400" />

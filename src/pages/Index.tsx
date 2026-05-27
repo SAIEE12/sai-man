@@ -236,7 +236,7 @@ const Index = () => {
       <LogStreamHUD />
 
       {/* Simulated Server Deployment Telemetry HUD */}
-      <PipelineHUD />
+      <PipelineHUD isOverlayOpen={activeZone !== null} />
     </div>
   );
 };
